@@ -36,7 +36,7 @@ ADASIND gốc và slide Ngày 11 nói tới nhiều class hơn (kể cả vật 
 ## Cột `what` — công cụ gán tự động
 
 `MISSING`, `SPURIOUS`, `WRONG_CLASS`, `BOX_GEOMETRY`, `DUPLICATE`, `ATTRIBUTE`, `IGNORE_SCOPE`, `STRUCTURE`. Chi
-tiết luật ghép nằm trong `make compare`; bạn không tự gán cột này.
+tiết luật ghép nằm trong `python3 lab11.py compare <round>`; bạn không tự gán cột này.
 
 ## Cột `why` — bạn tự phán đoán
 
@@ -51,14 +51,14 @@ tiết luật ghép nằm trong `make compare`; bạn không tự gán cột nà
 - `E5_unresolved` — chưa đủ bằng chứng tách lỗi người gán nhãn, reference, dữ liệu và model. Ghi rõ còn cần ảnh,
   rule hoặc thử nghiệm gì; không ép mọi ca vào một nguyên nhân đoán mò.
 
-## Vì sao `make local-quality` và `make compare` cho số khác nhau
+## Vì sao `python3 lab11.py local-quality` và `python3 lab11.py compare` cho số khác nhau
 
-Hai lệnh đều loại box ở `ignore_region` của teaching reference. `make compare` ghép box **cùng class** trước để
-phân loại `WHAT`; `make local-quality` ghép **hình học trước** (IoU ≥ 0.5), rồi kiểm class để lập ma trận nhầm và
+Hai lệnh đều loại box ở `ignore_region` của teaching reference. `python3 lab11.py compare` ghép box **cùng class** trước để
+phân loại `WHAT`; `python3 lab11.py local-quality` ghép **hình học trước** (IoU ≥ 0.5), rồi kiểm class để lập ma trận nhầm và
 tính TP/FP/FN. Một cặp trùng vị trí nhưng sai class vì thế có thể hiện khác nhau ở hai báo cáo. Xem ảnh, overlay
 và luật nhãn trước khi kết luận. Báo cáo local chỉ tính rectangle có chiều cao ≥40 px, không chấm polygon hay track.
 
-`make local-quality` đọc export đã khóa và teaching reference đã mở. Nó ghi `local_quality.md`, JSON, CSV xung đột
+`python3 lab11.py local-quality` đọc export đã khóa và teaching reference đã mở. Nó ghi `local_quality.md`, JSON, CSV xung đột
 và ma trận. Một cặp đúng hình và class là TP; sai class là một FP của class vẽ và một FN của class tham chiếu. Box
 chỉ có ở bên vẽ là FP, chỉ có ở tham chiếu là FN. Với tổng TP/FP/FN: `precision=TP/(TP+FP)`,
 `recall=TP/(TP+FN)`, `Jaccard=TP/(TP+FP+FN)`, `Dice=2TP/(2TP+FP+FN)`. Accuracy micro là TP chia số lần đối
@@ -71,6 +71,6 @@ Các tên chỉ số và công thức mục tiêu tham khảo [tài liệu CVAT 
 
 ## Fill ratio (K12) — số đo riêng của lab
 
-`make fill` tính diện tích polygon / diện tích box cho 4 đối tượng bạn vẽ polygon viền thấy được. Không có thuật
+`python3 lab11.py fill` tính diện tích polygon / diện tích box cho 4 đối tượng bạn vẽ polygon viền thấy được. Không có thuật
 ngữ chuẩn "fill ratio" trong tài liệu ngành; đây là số đo tự đặt để minh hoạ box trục thẳng lỏng bao nhiêu ở vùng
 rìa cong so với vùng trung tâm.

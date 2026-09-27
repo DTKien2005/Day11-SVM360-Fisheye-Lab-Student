@@ -3,17 +3,17 @@
 Tên nút và phím tắt theo CVAT v2.74.1 — bản bạn đã cài ở Day 2. Đây là lần thứ hai bạn dùng lại đúng stack đó,
 **không cài CVAT mới**.
 
-## Nếu máy không có `make`
+## Chạy lệnh trên mọi máy có Python
 
-Không cần cài `make`. Làm theo [GUIDE.md](../GUIDE.md#bắt-đầu-nếu-bạn-chưa-từng-dùng-terminal) để mở Terminal đúng thư mục rồi dùng `python3 lab11.py` (Windows: thay `python3` bằng `py`). Các lệnh ngắn trong file này có bản Python tương ứng:
+Không cần cài `make`. Làm theo [GUIDE.md](../GUIDE.md#bắt-đầu-nếu-bạn-chưa-từng-dùng-terminal) để mở Terminal đúng thư mục rồi dùng `python3 lab11.py` (Windows: thay `python3` bằng `py`).
 
-| Lệnh cũ | Lệnh dùng được trên mọi máy có Python |
+| Việc cần làm | Lệnh |
 |---|---|
-| `make doctor` | `python3 lab11.py doctor` |
-| `make cvat SLICE=B1-edge` | `python3 lab11.py cvat B1-edge` |
-| `make draft FILE=<zip>` | `python3 lab11.py draft <zip>` |
-| `make lock ROUND=r1_craft FILE=<zip>` | `python3 lab11.py lock r1_craft <zip>` |
-| `make reference ROUND=r1_craft` | `python3 lab11.py reference r1_craft` |
+| Kiểm môi trường | `python3 lab11.py doctor` |
+| Tạo task cho slice `B1-edge` | `python3 lab11.py cvat B1-edge` |
+| Lưu export nháp | `python3 lab11.py draft <zip>` |
+| Khóa export cuối | `python3 lab11.py lock r1_craft <zip>` |
+| Mở teaching reference sau lock | `python3 lab11.py reference r1_craft` |
 
 ## 1. Bật lại stack Day 2
 

@@ -1,10 +1,10 @@
 # Day 11 — SVM/360 Fisheye Lab
 
-**Bài chính Day 11 · thực hành trong giờ giảng + 240 phút lab · mỗi học viên nộp một repo Public.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
+**Bài chính Day 11 · 240 phút lab · mỗi học viên nộp một repo Public.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
 
 ## Bạn sẽ làm gì và nộp gì?
 
-Bạn sẽ giải một vòng công việc dữ liệu: phân biệt vạch **chia ô đỗ** với vạch chỉ lối xe chạy trên ảnh bãi đỗ; gán nhãn object trên ảnh fisheye; tự soát trước khi xem reference; review bài khác theo guideline; đọc xung đột giữa người, reference và model; sửa có căn cứ; rồi lập kế hoạch sampling/gold set cho **front, rear, left, right**. Đây là một lab chính chứa các nội dung Day 11, không phải chỉ bài sau giờ giảng.
+Bạn sẽ giải một vòng công việc dữ liệu: phân biệt vạch **chia ô đỗ** với vạch chỉ lối xe chạy trên ảnh bãi đỗ; gán nhãn object trên ảnh fisheye; tự soát trước khi xem reference; review bài khác theo guideline; đọc xung đột giữa người, reference và model; sửa có căn cứ; rồi lập kế hoạch sampling/gold set cho **front, rear, left, right**. Toàn bộ các phần này nằm trong một buổi lab 240 phút.
 
 Đầu ra cuối là repo cá nhân **Public** chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `python3 lab11.py check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
 
@@ -22,7 +22,7 @@ Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
 ## Nhìn ảnh trước khi gán nhãn
 
-Ảnh lõi ở dưới có các đoạn sơn chia **ô đỗ**. Hãy tìm hai đoạn như vậy để vẽ `parking_line`; không vẽ mọi vạch trắng thành một lớp. Bản ảnh thứ hai giúp so vạch ô đỗ ở tiền cảnh với lối xe chạy trong bãi. Mở [quy tắc và thao tác parking](GUIDE.md#bài-trong-giờ-giảng-vạch-ô-đỗ-và-free-space) trước khi tạo task.
+Ảnh lõi ở dưới có các đoạn sơn chia **ô đỗ**. Hãy tìm hai đoạn như vậy để vẽ `parking_line`; không vẽ mọi vạch trắng thành một lớp. Bản ảnh thứ hai giúp so vạch ô đỗ ở tiền cảnh với lối xe chạy trong bãi. Mở [quy tắc và thao tác parking](GUIDE.md) trước khi tạo task.
 
 ![Bãi đỗ trống có các vạch chia ô ở tiền cảnh](assets/parking/parking-lot-core.jpg)
 
@@ -59,28 +59,27 @@ Khi màn hình hiện các lệnh như `doctor`, `cvat` và `check`, bạn đang
 
 ## Lộ trình Day 11
 
-Phần ảnh bãi đỗ và bản nháp kế hoạch bốn camera diễn ra **trong phần giảng**. Sau đó là 240 phút P0–P6; mốc dưới đây là ngân sách cần bấm giờ thử, chưa phải kết quả đo với lớp. [GUIDE.md](GUIDE.md) có từng thao tác và dấu hiệu hoàn thành.
+Toàn bộ hoạt động nằm trong 240 phút P0–P6. P0 bắt đầu bằng task parking và bản nháp kế hoạch bốn camera; P6 hoàn thiện hai phần đó bằng bằng chứng từ phần fisheye. Mốc dưới đây là ngân sách cần bấm giờ thử, chưa phải kết quả đo với lớp. [GUIDE.md](GUIDE.md) có từng thao tác và dấu hiệu hoàn thành.
 
 | Thời điểm | Bạn làm gì | Bằng chứng cần thấy |
 |---|---|---|
-| Trong phần giảng | Task parking trên ảnh lõi; vẽ `parking_line` và `free_space`; phác thảo 8 ô phân bổ 200 frame | `submission/parking/annotations.xml`, `observations.md`; bản nháp `45_sampling_plan.csv` |
-| 0–20 · P0 | Kiểm CVAT, ghi mode và sensor context | `00_setup/doctor.txt`, `mode.json`, `sensor_context.md` |
-| 20–55 · P1 | Hiệu chuẩn C0, khóa rồi so reference; clinic 6 ca dễ nhầm | `p1_calib/` và ba dòng đầu `findings.csv` |
-| 55–110 · P2 | Gán nhãn slice 3 frame; export nháp, chạy fill/self-QC, sửa rồi export bản cuối và khóa | `r1_craft/annotations.xml`, `selfqc.md`, `lock.txt` |
-| 110–125 | Nghỉ 15 phút | — |
-| 125–155 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
-| 155–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
+| 0–40 · P0 | Kiểm CVAT/repo, tạo task parking và phác 8 ô phân bổ 200 frame | `00_setup/`; `parking/annotations.xml`, `observations.md`; bản nháp `45_sampling_plan.csv` |
+| 40–70 · P1 | Hiệu chuẩn C0, khóa rồi so reference; clinic 6 ca dễ nhầm | `p1_calib/` và ba dòng đầu `findings.csv` |
+| 70–125 · P2 | Gán nhãn slice 3 frame; export nháp, chạy fill/self-QC, sửa rồi export bản cuối và khóa | `r1_craft/annotations.xml`, `selfqc.md`, `lock.txt` |
+| 125–140 | Nghỉ 15 phút | — |
+| 140–165 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
+| 165–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
 | 200–215 · P5 | Rework một số ca P0/P1 có căn cứ, khóa bản mới, ghi số trước/sau | `rework/annotations-v2.xml`, `delta.md` |
 | 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `python3 lab11.py check` exit 0, repo Public có commit mới |
 
-Nếu bài parking hoặc kế hoạch 200 frame chưa được phác thảo trong giờ giảng, hãy làm chúng trước P1. P6 chỉ dành cho hoàn thiện và kiểm lại; không chờ phút 215 mới bắt đầu hai kế hoạch.
+Hoàn tất task parking và phác 8 ô trước khi rời P0. P6 chỉ dành để bổ sung lý do, kế hoạch gold set và kiểm lại; không chờ phút 215 mới bắt đầu hai phần này.
 
 ## Đường đi chính: lệnh nào, đọc kết quả nào?
 
 Chạy lệnh trong **repo cá nhân**. `FILE=` có thể là đường dẫn ZIP tải từ CVAT trong Downloads; tên ZIP chỉ là ví dụ, hãy dùng file vừa export thật của bạn.
 
 ```bash
-# Phần giảng: dùng task riêng cho ảnh parking.
+# P0: dùng task riêng cho ảnh parking.
 python3 lab11.py parking
 python3 lab11.py parking --file /duong-dan/parking-export.zip
 

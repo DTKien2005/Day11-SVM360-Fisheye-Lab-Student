@@ -1,8 +1,8 @@
 # Rubric Day 11 — 100 điểm
 
-Rubric này chấm **bằng chứng trong repo bài làm và lập luận gắn với ảnh**, không chấm tốc độ bấm CVAT hay số lượng box vẽ thêm. Bài có hai phần cùng thuộc Day 11: thực hành vạch ô đỗ trong giờ giảng và vòng lab fisheye 240 phút, rồi chuyển kết quả sang kế hoạch SVM bốn camera giả lập. [README](README.md) cho biết việc cần làm; [GUIDE](GUIDE.md) chỉ thao tác.
+Rubric này chấm **bằng chứng trong repo bài làm và lập luận gắn với ảnh**, không chấm tốc độ bấm CVAT hay số lượng box vẽ thêm. Toàn bộ phần vạch ô đỗ, fisheye và kế hoạch SVM bốn camera giả lập đều thuộc buổi lab Day 11 kéo dài 240 phút. [README](README.md) cho biết việc cần làm; [GUIDE](GUIDE.md) chỉ thao tác.
 
-`make check` kiểm file, định dạng và một số điều kiện tối thiểu. Nó **không** cho điểm, xác nhận vạch đỗ đúng, xác nhận teaching reference là gold set, hoặc thay người đọc bài. Mỗi tiêu chí dưới đây có điểm tối đa; điểm phần chỉ trao khi bằng chứng có thể truy về đúng ảnh, frame, quy tắc hoặc số liệu. Repo chưa đặt ngưỡng đạt/trượt.
+`python3 lab11.py check` kiểm file, định dạng và một số điều kiện tối thiểu. Nó **không** cho điểm, xác nhận vạch đỗ đúng, xác nhận teaching reference là gold set, hoặc thay người đọc bài. Mỗi tiêu chí dưới đây có điểm tối đa; điểm phần chỉ trao khi bằng chứng có thể truy về đúng ảnh, frame, quy tắc hoặc số liệu. Repo chưa đặt ngưỡng đạt/trượt.
 
 ## Bảng điểm
 
@@ -35,4 +35,4 @@ Rubric này chấm **bằng chứng trong repo bài làm và lập luận gắn 
 2. Vạch chia ô đỗ được nhận theo **vai trò chia ô**, không chỉ theo màu sơn. `free_space` là vùng nhìn thấy trên ảnh tĩnh, không phải tuyên bố an toàn tự hành.
 3. `ego_body` chỉ có khi thân xe xuất hiện; `lens_border` được soát theo vòng kính. Hai frame ngoại lệ không bị ép vẽ ego.
 4. Tập 200 frame là bài thiết kế bốn camera **giả lập**; ba frame ADASIND không đại diện bốn camera.
-5. `make check` qua, repo bài làm ở chế độ Public, và file nộp trên GitHub trùng file đã dùng để giải thích.
+5. `python3 lab11.py check` qua, repo bài làm ở chế độ Public, và file nộp trên GitHub trùng file đã dùng để giải thích.

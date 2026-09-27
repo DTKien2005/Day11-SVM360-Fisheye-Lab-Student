@@ -1,6 +1,6 @@
 # GUIDE — làm bài Day 11 từ ảnh đến gói nộp
 
-**Dành cho học viên · trạng thái: hướng dẫn thực hành của lab Day 11.** Mở file này cạnh CVAT. Phần thực hành trong giờ giảng dùng ảnh bãi đỗ camera thường; lab 240 phút P0–P6 dùng ảnh fisheye **một camera** ADASIND. Bài lập kế hoạch bốn camera SVM là tình huống **giả lập**, không có 50.000 frame hay ảnh bốn camera trong repo. Dùng [README](README.md) để xem mục tiêu và gói nộp; file này chỉ đường thao tác, điểm dừng để kiểm, và cách gỡ lỗi.
+**Dành cho học viên · trạng thái: hướng dẫn thực hành của lab Day 11.** Mở file này cạnh CVAT. Buổi lab 240 phút P0–P6 bắt đầu bằng ảnh bãi đỗ camera thường, rồi chuyển sang ảnh fisheye **một camera** ADASIND. Bài lập kế hoạch bốn camera SVM là tình huống **giả lập**, không có 50.000 frame hay ảnh bốn camera trong repo. Dùng [README](README.md) để xem mục tiêu và gói nộp; file này chỉ đường thao tác, điểm dừng để kiểm, và cách gỡ lỗi.
 
 ## Bắt đầu nếu bạn chưa từng dùng Terminal
 
@@ -38,15 +38,15 @@ Các khối lệnh bên dưới dùng dạng Mac `python3 lab11.py ...`. Trên W
 
 Phần trong dấu `<...>` là chỗ bạn thay bằng dữ liệu của mình. Chẳng hạn `<zip-cuối>` là file ZIP bạn vừa tải từ CVAT; không gõ nguyên dấu `<` và `>`. `make` chỉ là lối tắt dành cho người đã có công cụ đó, không phải điều kiện để làm bài. [Rubric 100 điểm](RUBRIC.md) cho biết người soát xem bằng chứng nào; `python3 lab11.py check` kiểm cấu trúc và độ đầy đủ, **không chấm chất lượng nhãn hay lập luận**.
 
-## P0 · phút 0–20 — chuẩn bị CVAT và repo
+## P0 · phút 0–40 — khởi động: repo, CVAT, bãi đỗ và kế hoạch
 
 1. Giữ repo bài nộp ở chế độ **Public** để người chấm mở được link; template nguồn có thể còn private trước lúc phát lớp. Mở Docker Desktop và chờ Engine chạy. Trong thư mục CVAT đã cài từ Day 2 (ví dụ `cvat-day2`), chạy `docker compose start`; nếu báo chưa có container, dùng `docker compose up -d`. Trở lại thư mục repo học viên, mở `http://localhost:8080` và đăng nhập tài khoản Day 2. Không cài một CVAT khác cho bài này.
 2. Chạy `python3 lab11.py doctor`. Đọc `submission/00_setup/doctor.txt`: Python cần từ 3.9, CVAT kết nối được, Git không track `.env`, repo Public được xác nhận hoặc bạn tự kiểm nếu không có `gh`. Nếu CVAT không kết nối, xem [hướng dẫn khởi động và lỗi](docs/01-guide-cvat-vi.md). Sau buổi có thể chạy `docker compose stop` trong thư mục CVAT; **không dùng `docker compose down -v`** vì có thể xoá task và nhãn đã lưu.
-3. Solo chạy `python3 lab11.py mode --members ten-cua-ban`. Nhóm 2–3 người: mọi người dùng cùng danh sách tên nhưng mỗi người khai mình qua `--self`, ví dụ `python3 lab11.py mode --members an,binh,chi --self binh` trong repo của Bình. Lệnh tạo `submission/00_setup/mode.json`, thêm `team.json` khi có nhiều người và in **Slice của bạn**. Dùng slice đó ở P2; thiếu `--self` trong nhóm sẽ bị từ chối để tránh cả nhóm làm cùng một slice. Điền `submission/00_setup/sensor_context.md` bằng **quan sát từ ảnh**, không đoán thông số rig chưa có. P0 của lab dành phút 0–20 cho các việc này; nếu đã chuẩn bị trong giờ giảng, chỉ cần kiểm lại.
+3. Solo chạy `python3 lab11.py mode --members ten-cua-ban`. Nhóm 2–3 người: mọi người dùng cùng danh sách tên nhưng mỗi người khai mình qua `--self`, ví dụ `python3 lab11.py mode --members an,binh,chi --self binh` trong repo của Bình. Lệnh tạo `submission/00_setup/mode.json`, thêm `team.json` khi có nhiều người và in **Slice của bạn**. Dùng slice đó ở P2; thiếu `--self` trong nhóm sẽ bị từ chối để tránh cả nhóm làm cùng một slice. Điền `submission/00_setup/sensor_context.md` bằng **quan sát từ ảnh**, không đoán thông số rig chưa có. Dành phút 0–20 của P0 cho các việc này.
 
 **Điểm dừng:** `python3 lab11.py doctor` không còn dòng `✗`, `mode.json` có slice và `sensor_context.md` không còn `TODO`. Nếu máy không có `gh`, tự mở GitHub → Settings để xác nhận repo Public; dòng `!` của `doctor` không thay xác nhận đó.
 
-## Bài trong giờ giảng: vạch ô đỗ và free-space
+### P0 · phút 20–35 — vạch ô đỗ và free-space
 
 Hai ảnh dưới đây đã đi kèm repo và có nguồn, giấy phép trong [DATA_LICENSES](docs/DATA_LICENSES.md). Chúng là ảnh bãi đỗ camera thường. Hãy tự nhìn ảnh và chọn vạch trước khi xem lời giải của bất kỳ người nào.
 
@@ -64,13 +64,15 @@ Hai ảnh dưới đây đã đi kèm repo và có nguồn, giấy phép trong [
 
 **Điểm dừng:** `python3 lab11.py parking --file <zip>` nhận đúng **một ảnh core**, ≥2 polyline `parking_line` và ≥1 polygon `free_space`; ghi chú hết `TODO`. Nếu báo sai ảnh, tạo/export lại task chỉ chứa ảnh core. Nếu báo thiếu hình, kiểm **kiểu hình** trong XML: rectangle không thay được polyline; bấm **Ctrl+S** rồi export lại.
 
-**Cùng giờ giảng:** phác `submission/45_sampling_plan.csv` cho `front/rear/left/right × normal/hard`, tổng **200 frame** từ bài toán 50.000 frame giả lập trên slide, và phác `submission/46_gold_set_plan.md`. Sau P4, quay lại bổ sung lý do dựa trên lỗi đã thấy. [Bài đọc SVM 10 phút](docs/10-svm360-reading-vi.md) giúp phân biệt camera, seam, BEV, free-space và tracking. Teaching reference ADASIND **không** phải gold set bốn camera.
+### P0 · phút 35–40 — phác kế hoạch bốn camera
+
+Phác `submission/45_sampling_plan.csv` cho `front/rear/left/right × normal/hard`, tổng **200 frame** từ bài toán 50.000 frame giả lập trên slide, và ghi ý đầu tiên vào `submission/46_gold_set_plan.md`. Sau P4, quay lại bổ sung lý do dựa trên lỗi đã thấy. [Bài đọc SVM 10 phút](docs/10-svm360-reading-vi.md) giúp phân biệt camera, seam, BEV, free-space và tracking. Teaching reference ADASIND **không** phải gold set bốn camera.
 
 ![Sơ đồ khái niệm bốn camera và vùng chồng ở các góc xe](assets/diagrams/four-camera-seams.svg)
 
 *Sơ đồ chỉ để đặt câu hỏi lập kế hoạch: mỗi camera cần ca normal/hard riêng; một vật tại seam có thể xuất hiện hai lần mà chưa chắc là lỗi trùng. Không dùng hình này làm calibration hoặc nhãn chuẩn.*
 
-## P1 · phút 20–55 — calibration rồi xem tín hiệu chất lượng
+## P1 · phút 40–70 — calibration rồi xem tín hiệu chất lượng
 
 1. Chạy `python3 lab11.py cvat C0`. Lệnh in tên task có `raw_fisheye`, đường dẫn `assets/labels.json`, ảnh cần nạp và XML prefill. Trong CVAT: **Tasks → + → Create a new task**; chép đúng tên in ra; **Labels → Raw**, dán toàn bộ JSON, **Save**, sang **Constructor** kiểm sáu class động và `ignore_region` có attribute `reason`; **Select files → My computer**, chọn đúng ảnh lệnh liệt kê; **Submit & Open → Job #…**. Ở trang task: **Actions → Upload annotations → CVAT 1.1**, chọn XML prefill lệnh in ra, xác nhận; mở job để kiểm box và `lens_border` đã hiện.
 2. Tự kiểm ảnh gốc rồi sửa/điền nhãn C0 theo [rules v1.0.0](docs/02-rules-vi.md). Vật cao ≥40 px trong vùng hợp lệ cần box; box bám phần nhìn thấy trên fisheye gốc. Rider ngồi trên xe hai bánh thành một `Bike`, người dắt xe là `Pedestrian` và `Bike` tách. `truncated` do vòng kính/khung cắt; `occluded` do vật khác che. `lens_border` đã có sẵn để **soát**, `ego_body` vẽ khi có thân xe nhìn thấy. Chưa mở teaching reference khi đang làm độc lập.
@@ -88,9 +90,9 @@ Hai ảnh dưới đây đã đi kèm repo và có nguồn, giấy phép trong [
 
 **Điểm dừng:** có `submission/p1_calib/annotations.xml`, `lock.txt`, `reference.txt`, `compare.md` và `compare.html`; ba dòng đầu trong `findings.csv` nêu đúng frame/object khi ghi ca cụ thể. Nếu `python3 lab11.py reference calib` báo chưa khoá, làm lại đúng thứ tự. Nếu upload prefill thất bại, báo Lab Coach; [cách thao tác CVAT](docs/01-guide-cvat-vi.md) nêu đường lùi vẽ từ ảnh gốc.
 
-## P2: Gán nhãn fisheye, tự soát và khóa bản cuối
+## P2 · phút 70–125 — gán nhãn fisheye, tự soát và khóa bản cuối
 
-*Phút 55–110 · vai Annotator: bản nháp → tự soát → bản khóa.*
+*Phút 70–125 · vai Annotator: bản nháp → tự soát → bản khóa.*
 
 1. Chạy `python3 lab11.py cvat <slice-trong-mode.json>`. Lệnh in **đúng ba ảnh** và file `assets/prefill/<slice>.xml`. Tạo task mới như P1; tên phải chứa `raw_fisheye`. Import XML bằng **Actions → Upload annotations → CVAT 1.1**. Frame 1 có nửa box prefill và `lens_border`; bạn phải soát từng box, sửa/giữ/xoá/vẽ thêm. Nếu cần hỗ trợ, chạy `python3 lab11.py cvat <slice> --support` **trước khi tạo/import task** để lấy prefill thêm cho frame 2; chuẩn nhãn và bằng chứng không đổi. [Support và stretch](docs/09-support-stretch-vi.md) giải thích lựa chọn này.
 2. Mở từng frame bằng **F** (tiếp) và **D** (trước). **Draw new rectangle → Label → Shape**, bấm góc trên trái rồi góc dưới phải; chọn object, kéo cạnh/đỉnh để sửa; **Del** xoá, **Ctrl+Z** hoàn tác. **Draw new polygon → ignore_region → Shape**, bấm từng điểm và **N/Done**, rồi ở sidebar **Objects** chọn `reason`: `ego_body` cho thân xe khi nhìn thấy, `lens_border` chỉ soát polygon đã import; các `reason` khác theo R06. Frame `adasind_006840.jpg` và `adasind_271039.jpg` không có ego body nhìn thấy, đừng thêm polygon cho hai frame đó. Dùng [checklist 9 mục](docs/04-selfqc-checklist-vi.md) khi soát scope, class, rider, geometry, attribute, thiếu/trùng và ignore.
@@ -98,9 +100,9 @@ Hai ảnh dưới đây đã đi kèm repo và có nguồn, giấy phép trong [
 4. **Ctrl+S**, export **CVAT for images 1.1**, tắt **Save images**. Chạy `python3 lab11.py draft <zip-nháp>`: XML nháp vào `exports/r1-draft.xml`. Chạy `python3 lab11.py fill` (nếu làm K12), rồi `python3 lab11.py selfqc r1_craft`. Đọc `submission/r1_craft/selfqc.md`: xử lý cảnh báo tự động, soát tay đủ chín mục theo thứ tự và đổi từng `- [ ]` thành `- [x]` **sau khi đã kiểm trên ảnh**. Lệnh tự động không thể biết một vạch box có thật ôm đúng vật hay class có đúng ngữ cảnh.
 5. Quay lại CVAT sửa những gì self-QC phát hiện. **Ctrl+S**, export **bản cuối** thành ZIP khác, rồi `python3 lab11.py lock r1_craft <zip-cuối>`. Lệnh in mã `XXXX-XXXX`; lưu mã và đưa cho người soát. Bản nháp không thay bản khoá. Không sửa file XML trong `submission/r1_craft/` sau khoá; nếu thật sự cần khoá lại, ghi lý do vào `submission/40_decision_log.csv` rồi dùng `--relock` theo [hướng dẫn lỗi CVAT](docs/01-guide-cvat-vi.md).
 
-**Điểm dừng:** `submission/r1_craft/annotations.xml`, `lock.txt`, `selfqc.md` có đủ chín ô đã soát; mã khoá khớp bản cuối. Nghỉ 15 phút ở mốc dự kiến 110–125.
+**Điểm dừng:** `submission/r1_craft/annotations.xml`, `lock.txt`, `selfqc.md` có đủ chín ô đã soát; mã khoá khớp bản cuối. Nghỉ 15 phút ở mốc dự kiến 125–140.
 
-## P3 · phút 125–155 — vai QA: soát mù bằng luật
+## P3 · phút 140–165 — vai QA: soát mù bằng luật
 
 Nhóm 2–3 người đổi bài theo vòng trong [quy tắc ba vai](docs/03-roles-rotation-vi.md); nhận **file đã khoá**, slice và mã khoá từ bạn kế bên. Nếu làm solo hoặc chờ hơn 5 phút, nghỉ ít nhất 5 phút rồi cold review chính bản khoá của mình. **Chưa mở teaching reference, model overlay hay worked HTML** trong pha QA.
 
@@ -108,7 +110,7 @@ Chạy `python3 lab11.py qa --slice <slice-của-file-nhận> --file <zip-hoặc
 
 **Điểm dừng:** có `qa_overlay.html` và `qa_review.md` hết `TODO`; mỗi nhận xét chỉ rõ một frame/object/luật. Nhớ trả lời từng nhận xét QA ở P4, kể cả khi quyết định giữ nhãn.
 
-## P4 · phút 155–200 — vai Diagnostician: đối chiếu và quyết định
+## P4 · phút 165–200 — vai Diagnostician: đối chiếu và quyết định
 
 Quay về **slice của chính bạn**. Chạy theo thứ tự:
 

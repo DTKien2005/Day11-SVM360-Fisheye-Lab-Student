@@ -1,6 +1,6 @@
 # 04 — Tự soát 9 mục (thứ tự khai báo)
 
-Soát theo **đúng thứ tự** này trên bản export nháp trước khi export bản cuối và khoá. `make selfqc` tự động kiểm được một phần; phần còn lại bạn tick tay
+Soát theo **đúng thứ tự** này trên bản export nháp trước khi export bản cuối và khoá. `python3 lab11.py selfqc r1_craft` tự động kiểm được một phần; phần còn lại bạn tick tay
 bằng `- [ ]` trong `selfqc.md` mà lệnh sinh ra.
 
 1. **Phạm vi:** mọi vật cao ≥ `H` (40 px) trong vùng hợp lệ đều có box; vật thấp hơn `H` không box (không phải lỗi
