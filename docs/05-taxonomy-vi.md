@@ -46,13 +46,28 @@ tiết luật ghép nằm trong `make compare`; bạn không tự gán cột nà
 - `E2_guideline_gap` — luật hiện tại (`docs/02`) không đủ để phân xử ca này.
 - `E3_data_defect` — lỗi ở chính dữ liệu ảnh (mờ, cắt, blur đè lên vật).
 - `E4_model_domain` — model sai vì lệch miền dữ liệu (model gốc huấn luyện trên ảnh phẳng, không biết `ego_body`,
-  gãy ở vùng méo cạnh rìa).
+  gãy ở vùng méo cạnh rìa). Đây là **giả thuyết** cần bằng chứng từ nhiều ca hoặc phép so sánh, không kết luận chỉ từ
+  một box lệch.
+- `E5_unresolved` — chưa đủ bằng chứng tách lỗi người gán nhãn, reference, dữ liệu và model. Ghi rõ còn cần ảnh,
+  rule hoặc thử nghiệm gì; không ép mọi ca vào một nguyên nhân đoán mò.
 
-## Vì sao `make cvat-quality` và `make compare` cho số khác nhau
+## Vì sao `make local-quality` và `make compare` cho số khác nhau
 
-CVAT quality report **không có ngữ nghĩa `ignore_region`** — box của bạn nằm trong vùng `ego_body` vẫn bị đếm là
-`extra` trên CVAT, dù `make compare` (áp luật don't-care K13) đã loại bỏ ca đó. Khi đối chiếu hai nguồn ở P4, đây là
-điểm khác biệt cần giải thích, không phải lỗi công cụ.
+Hai lệnh đều loại box ở `ignore_region` của teaching reference. `make compare` ghép box **cùng class** trước để
+phân loại `WHAT`; `make local-quality` ghép **hình học trước** (IoU ≥ 0.5), rồi kiểm class để lập ma trận nhầm và
+tính TP/FP/FN. Một cặp trùng vị trí nhưng sai class vì thế có thể hiện khác nhau ở hai báo cáo. Xem ảnh, overlay
+và luật nhãn trước khi kết luận. Báo cáo local chỉ tính rectangle có chiều cao ≥40 px, không chấm polygon hay track.
+
+`make local-quality` đọc export đã khóa và teaching reference đã mở. Nó ghi `local_quality.md`, JSON, CSV xung đột
+và ma trận. Một cặp đúng hình và class là TP; sai class là một FP của class vẽ và một FN của class tham chiếu. Box
+chỉ có ở bên vẽ là FP, chỉ có ở tham chiếu là FN. Với tổng TP/FP/FN: `precision=TP/(TP+FP)`,
+`recall=TP/(TP+FN)`, `Jaccard=TP/(TP+FP+FN)`, `Dice=2TP/(2TP+FP+FN)`. Accuracy micro là TP chia số lần đối
+chiếu hình học (cặp đúng, cặp sai class, box đơn lẻ). Accuracy theo class thêm true negative từ các lần đối chiếu
+không liên quan class đó. Macro là trung bình theo class có mẫu; worst là class thấp nhất. Khi không có mẫu, ghi
+`N/A`, không biến thành 0 hay 100%; nếu một class có nhãn ở một phía nhưng mẫu số precision hoặc recall bằng 0,
+chỉ số đó là 0 theo quy tắc CVAT. Mean IoU chỉ tính cặp TP. Đây là phép tính mô tả **theo quy tắc lab**, không
+khẳng định trùng số với CVAT Premium vì cấu hình ghép, filter, attribute và cách lấy validation set có thể khác.
+Các tên chỉ số và công thức mục tiêu tham khảo [tài liệu CVAT Quality Control](https://docs.cvat.ai/docs/qa-analytics/auto-qa/).
 
 ## Fill ratio (K12) — số đo riêng của lab
 

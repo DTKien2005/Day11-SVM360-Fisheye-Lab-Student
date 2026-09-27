@@ -27,8 +27,8 @@ Mỗi card có ba lựa chọn: **đúng**, **sai**, **mơ hồ**. Đọc lý do
 
 *"`ego_body` chỉ cần vẽ ở frame nào nhìn rõ tay lái, frame nào không thấy gương thì bỏ qua."*
 
-- **Sai.** R07: vẽ `ego_body` ở **mọi** frame mình phụ trách — thân xe ego luôn có mặt trong ảnh ADASIND, kể cả
-  khi chỉ thấy một góc nhỏ (mép capo, viền gương).
+- **Sai vì phải nhìn ảnh trước khi quyết định.** R07: vẽ `ego_body` khi thực sự thấy thân xe/gương/tay lái. Hai
+  frame `adasind_006840.jpg` và `adasind_271039.jpg` trong pack không có vùng ego cần vẽ; thêm polygon ở đó là thừa.
 
 ## Card 5 — `lens_border`
 

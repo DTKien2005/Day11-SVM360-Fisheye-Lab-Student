@@ -1,30 +1,29 @@
-# Rubric — mô tả mức, không có trọng số
+# Rubric tự đối chiếu — Day 11 SVM/360
 
-Đây là rubric **mô tả**, dùng để bạn tự đối chiếu trước khi nộp. Điểm số, trọng số, và cổng đạt/trượt **không** nằm
-trong repo này — thuộc autograder riêng của chương trình.
+Rubric này cho biết **bằng chứng nào người soát sẽ đọc** và thế nào là một câu trả lời có cơ sở. Đây là bản mô tả
+do Lab Coach chuẩn bị để rà soát nội bộ; điểm số, trọng số, ngưỡng đạt và quyết định đánh giá chính thức chưa
+được công bố trong repo. `make check` chỉ kiểm cấu trúc, không chấm đúng/sai nhãn.
 
-| Tiêu chí | Chưa vững | Đạt mục tiêu buổi | Vững |
+| Tiêu chí / bằng chứng | Chưa vững | Đạt mục tiêu buổi | Vững |
 |---|---|---|---|
-| **Geometry** (O1) | Box "nắn thẳng" vật cong ở rìa; thiếu vật gần trong `ego_body`/`center` | Box bám đúng phần nhìn thấy trên ảnh gốc; `truncated` đúng theo vòng kính/khung | Nhất quán qua cả 3 frame; tự bắt và sửa lỗi hình học của mình trước khi khoá |
-| **Class & attribute** (O1) | Còn nhầm ThreeWheeler/Bus/Truck; sai luật rider; `occluded`/`truncated` lẫn nhau | Đúng bảng 6 class và luật rider; hai attribute tách bạch | Không lệch giữa các đối tượng cùng loại trong slice; ghi rõ ca mơ hồ thay vì đoán |
-| **Soát độc lập trước khi thấy reference** (O2) | Đoán trước `why`/reference khi chưa mở; soát qua loa | Soát chéo chỉ bằng luật (`rule_id`), `why` để trống đúng như thiết kế | Bắt được ca thật (không chỉ đồng thuận với người khoá) trước khi có reference |
-| **Đọc quality report CVAT** (O3) | Không đối chiếu `cvat_quality.md` với `compare.md` | Nói được vài số của report (valid/missing/extra) | Giải thích được vì sao hai nguồn lệch số (ngữ nghĩa ignore, xem `docs/05`) |
-| **Phân loại WHAT × WHY × owner** (O4) | Không dùng `E0`; mọi khác biệt gán `E1` | Có phân loại cho phần lớn dòng, dùng `E0` khi có bằng chứng | Phân biệt rõ `E0`–`E4`; mỗi `E0`/`E4` có frame + lý do cụ thể |
-| **Zone bán kính** (O5) | Không có `zone_table.md`, hoặc không tách center/mid/edge | `zone_table.md` có đủ 3 zone với n cụ thể | Nói được zone nào model gãy nhiều nhất và giả thuyết vì sao (méo, thiếu `ego_body`) |
-| **Hệ quả** (O6) | Error card/guideline patch/escalation ticket còn sơ sài, không có bằng chứng cụ thể | Đủ 4 hạng mục (`10`, `20`, `30`, decision log), mỗi mục có evidence | Guideline patch giải quyết đúng khoảng trống đã tìm thấy; escalation đúng 5 trường, đúng owner |
-| **Sampling/gold plan** (O7) | `45_review_plan.md` bỏ trống hoặc chung chung | Có bảng rút gọn: lát cắt khó nào cần review trước, vì sao | Làm thêm `stretch/` với lý luận mở rộng hợp lý |
+| **Object trên fisheye** — `r1_craft/annotations.xml`, self-QC | Bỏ vật thuộc phạm vi, áp hình học camera thường hoặc nhầm class/rider | Box bám phần nhìn thấy, áp H=40 và sáu class của lab, tách `truncated`/`occluded` | Tự phát hiện và sửa sai trước khi khoá; giải thích được ca méo ở rìa |
+| **Vùng loại trừ** — XML và self-QC | `lens_border`/`ego_body` sai hoặc vẽ ego khi không thấy | Giữ hai mask đúng theo frame; ignore có reason; không box trong vùng loại trừ | Chỉ ra được một sai mask làm lệch phép so sánh ra sao |
+| **Vạch ô đỗ và free-space** — `parking/annotations.xml`, `observations.md` | Gọi vạch làn/lối xe chạy là vạch ô đỗ hoặc polygon xuyên vật cản | Vẽ đoạn chia ô bằng polyline; polygon vùng lối xe trống nhìn thấy; giải thích một vạch đã loại | Nêu ca mơ hồ và rule/evidence cần để xử lý; không suy an toàn từ ảnh tĩnh |
+| **QA độc lập và rework** — lock, `qa_review.md`, `delta.md` | Xem reference trước khi tự soát hoặc không ghi thay đổi | Soát bằng rule trước reference, ghi ca cần sửa và số trước/sau | Phân biệt bất đồng hợp lý với lỗi nhãn; chỉ sửa ca có căn cứ và giữ dấu vết |
+| **Đọc quality report** — `compare.md`, `local_quality.md`, confusion CSV | Lấy một số accuracy làm phán quyết đúng/sai | Đọc TP/FP/FN, micro và một class yếu; truy lại xung đột trên ảnh | Nêu giới hạn teaching reference, ngưỡng IoU, cỡ mẫu và vì sao hai phép ghép cho kết quả khác |
+| **Chẩn đoán nguyên nhân** — `findings.csv`, error card | Gán mọi bất đồng cho người label/model; thiếu frame hoặc rule | Tách WHAT và giả thuyết WHY; có evidence, owner, action; dùng `E5_unresolved` khi chưa đủ dữ liệu | Đề xuất phép kiểm phân biệt lỗi guideline, data, reference và model; không khẳng định nhân quả từ một ca |
+| **Sampling bốn camera** — `45_sampling_plan.csv`, `45_review_plan.md` | Chỉ chọn ảnh front hoặc cộng không đủ 200 | Đủ front/rear/left/right × normal/hard, tổng 200 của tình huống giả lập, nêu rủi ro và lý do phân bổ | Ưu tiên hard slice có căn cứ và giải thích cách thay phân bổ khi điều kiện camera đổi |
+| **Gold-set plan** — `46_gold_set_plan.md` | Gọi teaching reference ADASIND là gold set cho SVM | Nêu ca cần review riêng từng camera, annotation space/calibration và cách kiểm chứng trước khi gọi gold | Có refresh trigger, xử lý seam/cross-camera và giới hạn peer agreement/report |
+| **Tracking và liên camera** — `50_exit_ticket.md`, gold-set plan | Tự ghép identity hoặc gọi hai box vùng seam là lỗi trùng | Giải thích track ID, keyframe/Outside trên một camera và bằng chứng cần trước khi nối liên camera | Nêu cách timestamp, calibration và policy output ảnh hưởng quyết định ở seam |
+| **Handoff** — guideline patch, escalation, decision log, exit ticket | Đề xuất chung chung, thiếu owner hoặc bằng chứng | Một rule update, một escalation có frame/ảnh/impact/owner/đề xuất; decision log truy được | Sửa rule đúng khoảng trống tìm thấy và nói được tác động tới review kế tiếp |
 
-## Bằng chứng nằm ở đâu
+## Tự kiểm trước khi nộp
 
-- Khoá và so sánh: `p1_calib/`, `r1_craft/lock.txt`, `compare.md/html`.
-- Soát chéo: `r2_qa/qa_review.md`.
-- Chẩn đoán: `r3_diag/cvat_quality.md`, `model_compare.*`, `zone_table.md`, cột `why`/`severity`/`owner` của
-  `findings.csv`.
-- Rework có đo: `rework/delta.md`.
-- Hệ quả: `10_error_card.md`, `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`.
+1. Mỗi dòng nhận định quan trọng có frame, rule hoặc bảng số liệu để người khác kiểm lại.
+2. `parking_line` được phân biệt với vạch đường bằng vai trò **chia ô đỗ**, không chỉ bằng màu sơn.
+3. Tập 200 frame là **bài thiết kế bốn camera giả lập**; ba frame ADASIND không đại diện bốn camera.
+4. Teaching reference, nhãn bạn vẽ, model output và gold-set plan có tên gọi và vai trò riêng.
+5. Nếu dùng `E0`, `E4` hay `E5`, ghi bằng chứng hoặc điều cần kiểm tiếp; không đoán để điền đủ bảng.
 
-## Không làm giảm đánh giá
-
-- Dùng `E0_reference_defect` khi có bằng chứng — teaching reference **có** lỗi đã biết, ghi ra là đúng, không phải
-  "cãi lại" reference.
-- Không làm phần `stretch/`.
+**Nộp:** commit/push repo bài làm ở chế độ private và gửi link qua kênh thầy/Lab Coach công bố. Không nộp notebook
+Colab thay cho XML, CSV và các file giải thích trong `submission/`.

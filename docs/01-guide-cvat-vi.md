@@ -57,6 +57,10 @@ Lưu thường xuyên: **Ctrl+S**. Export chỉ lấy bản đã lưu.
 
 ## 5. Export và khoá
 
+Riêng **P2**, export một bản nháp trước: `make draft FILE=<đường dẫn ZIP nháp>` → `make fill` →
+`make selfqc ROUND=r1_craft` → sửa trong CVAT. Sau đó thực hiện các bước dưới đây với **bản cuối**; chỉ bản cuối
+được khoá và dùng cho QA. Bài vạch ô đỗ dùng task riêng, xem `docs/11-parking-lines-vi.md`.
+
 1. **Ctrl+S**.
 2. Trong job: **Menu** (góc trên trái) → **Export job dataset**.
 3. Định dạng: **CVAT for images 1.1**. **Save images: tắt.**

@@ -1,12 +1,12 @@
 # 04 — Tự soát 9 mục (thứ tự khai báo)
 
-Soát theo **đúng thứ tự** này trước khi export. `make selfqc` tự động kiểm được một phần; phần còn lại bạn tick tay
+Soát theo **đúng thứ tự** này trên bản export nháp trước khi export bản cuối và khoá. `make selfqc` tự động kiểm được một phần; phần còn lại bạn tick tay
 bằng `- [ ]` trong `selfqc.md` mà lệnh sinh ra.
 
 1. **Phạm vi:** mọi vật cao ≥ `H` (40 px) trong vùng hợp lệ đều có box; vật thấp hơn `H` không box (không phải lỗi
    thiếu).
 2. **`lens_border` và `ego_body`:** `lens_border` (đã import) phủ đúng vành đen ngoài vòng kính; `ego_body` (tự vẽ)
-   phủ thân xe/gương/tay lái của xe mình.
+   phủ thân xe/gương/tay lái **khi nhìn thấy**. Không thêm ego vào hai frame ngoại lệ nêu ở R07.
 3. **Class:** đúng bảng 6 class (`docs/02-rules-vi.md`); ThreeWheeler không bị gọi Bus/Truck; van chở người là Car.
 4. **Rider:** người lái + xe hai bánh = một `Bike`; người dắt xe tách thành `Pedestrian` + `Bike`; người ngồi trong
    xe không box.

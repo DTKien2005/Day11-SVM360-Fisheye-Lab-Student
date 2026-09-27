@@ -45,11 +45,18 @@ Luật này là **quy ước của khoá học**, không phải chuẩn ngành. 
 - **R09 — Không box trong ignore:** không có box nào được nằm ≥50% trong một polygon `ignore_region` (matcher coi
   đó là don't-care, không tính TP cũng không tính FP — xem `docs/05-taxonomy-vi.md`).
 
-## Mức độ nghiêm trọng (P0–P3)
+## Mức ưu tiên soát của bài học (P0–P3)
 
-- **R10 — Định nghĩa P0:** sai ở `ego_body`, sai ở `lens_border`, hoặc sai ở một vật **gần** (zone `center`).
-  Camera gắn trên xe đang chạy — vật gần ảnh hưởng trực tiếp tới quyết định phanh; sai ego/lens làm bẩn mọi số
-  thống kê sau đó.
+Đây là thứ tự **xử lý bài lab**, không phải mức rủi ro an toàn hay quy tắc sản xuất. `center/mid/edge` chỉ là vị trí
+trên ảnh; **không** cho biết vật gần hay xa xe.
+
+- **R10 — P0:** sai phạm vi dữ liệu (ví dụ `ego_body`, `lens_border`, hoặc ignore che nhầm vùng) khiến phép so sánh
+  và việc chọn đối tượng cần gán nhãn không còn đáng tin.
+- **P1:** thiếu/thừa/sai class hoặc hình học của đối tượng trong phạm vi, cần sửa để đáp ứng rule hiện hành.
+- **P2:** attribute hoặc khác biệt nhỏ cần soát lại; giải thích vì sao nó không đổi quyết định gán nhãn chính.
+- **P3:** lỗi trình bày hay ghi chép bằng chứng, không đổi nhãn; sửa trước khi nộp.
+
+Nếu chưa đủ bằng chứng để xếp mức, ghi lý do và hỏi người soát; không suy mức từ zone bán kính.
 
 ## Không thuộc phạm vi so sánh
 
