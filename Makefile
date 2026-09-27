@@ -4,6 +4,7 @@ FILE ?=
 SLICE ?=
 CODE ?=
 MEMBERS ?=
+SELF ?=
 STEP ?=
 IOU ?=
 TASK_ID ?=
@@ -13,7 +14,7 @@ TASK_ID ?=
 
 help:
 	@echo "Day 11 SVM/360 fisheye lab — lệnh học viên"
-	@echo "  make doctor | make mode MEMBERS=an,binh,chi | make status"
+	@echo "  make doctor | make mode MEMBERS=ten [SELF=ten nếu nhóm] | make status"
 	@echo "  make cvat SLICE=B1-edge [SUPPORT=1]"
 	@echo "  make draft FILE=exports/ban-nhap.zip | make selfqc ROUND=r1_craft | make fill"
 	@echo "  make parking [FILE=exports/parking.zip]"
@@ -30,8 +31,8 @@ doctor:
 	$(PYTHON) lab11.py doctor
 
 mode:
-	@test -n "$(MEMBERS)" || { echo "✗ Thiếu MEMBERS — ví dụ: make mode MEMBERS=an,binh,chi" >&2; exit 2; }
-	$(PYTHON) lab11.py mode --members "$(MEMBERS)"
+	@test -n "$(MEMBERS)" || { echo "✗ Thiếu MEMBERS — ví dụ solo: make mode MEMBERS=an; nhóm: make mode MEMBERS=an,binh,chi SELF=binh" >&2; exit 2; }
+	$(PYTHON) lab11.py mode --members "$(MEMBERS)" $(if $(SELF),--self "$(SELF)",)
 
 cvat:
 	@test -n "$(SLICE)" || { echo "✗ Thiếu SLICE — ví dụ: make cvat SLICE=B1-edge" >&2; exit 2; }

@@ -15,10 +15,17 @@ from .report import _html, _overlay, scoped
 DEGRADE_STEPS = {"stretch", "k12", "frame3", "findings", "zone_table", "rework"}
 
 
-def mode(base, members):
+def mode(base, members, self_name=None):
     names = sorted({name.strip() for name in members.split(",") if name.strip()})
     if not 1 <= len(names) <= 3:
         raise LabError("MEMBERS cần 1–3 tên khác nhau")
+    own_name = (self_name or "").strip()
+    if len(names) > 1 and not own_name:
+        raise LabError("Nhóm nhiều người cần SELF=<tên của bạn> trong MEMBERS")
+    if not own_name:
+        own_name = names[0]
+    if own_name not in names:
+        raise LabError("SELF phải là một tên trong MEMBERS")
     choices = sorted(key for key in slices(base) if key != "C0")
     if len(choices) < len(names):
         raise LabError("Không đủ slice để chia thành viên")
@@ -29,10 +36,9 @@ def mode(base, members):
         assignments[name] = available.pop(position)
     path = base / "submission" / "00_setup" / "mode.json"
     previous = read_json(path) if path.is_file() else {}
-    old_slice = previous.get("slice")
     value = dict(previous)  # keep what make cvat wrote (current_slice, support prefill ids)
     value.update({"members": names, "assignments": assignments,
-                  "slice": old_slice if old_slice in assignments.values() else assignments[names[0]],
+                  "self": own_name, "slice": assignments[own_name],
                   "degrade": previous.get("degrade", [])})
     write_json(path, value)
     if len(names) > 1:

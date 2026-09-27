@@ -17,14 +17,20 @@ class WorkflowTest(unittest.TestCase):
                 "slices": [{"slice": "B1-edge", "frames": ["a.jpg"]},
                            {"slice": "B2-mid", "frames": ["b.jpg"]},
                            {"slice": "B3-dense", "frames": ["d.jpg"]}]}))
-            first = mode(base, "chi,an,binh")
+            with self.assertRaisesRegex(LabError, "SELF"):
+                mode(base, "chi,an,binh")
+            first = mode(base, "chi,an,binh", self_name="binh")
             path = base / "submission/00_setup/mode.json"
             path.write_text(json.dumps(dict(first, current_slice=first["slice"], support_prefill=True)))
-            second = mode(base, "binh,chi,an")
+            second = mode(base, "binh,chi,an", self_name="binh")
             self.assertEqual(second["current_slice"], first["slice"])
             self.assertTrue(second["support_prefill"])
             self.assertEqual(first["assignments"], second["assignments"])
             self.assertEqual(len(set(first["assignments"].values())), 3)
+            self.assertEqual(second["slice"], second["assignments"]["binh"])
+            self.assertEqual(second["self"], "binh")
+            with self.assertRaisesRegex(LabError, "SELF"):
+                mode(base, "chi,an,binh", self_name="ngoai-nhom")
             degrade(base, "findings")
             self.assertIn("findings", json.loads((base / "submission/00_setup/mode.json").read_text())["degrade"])
             self.assertIsInstance(status(base), str)

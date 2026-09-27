@@ -21,7 +21,7 @@ def parser():
     sub = app.add_subparsers(dest="command", required=True)
     for name in ("doctor", "local-quality", "model", "triage", "rework", "card", "status", "check", "worked", "reset-task"):
         sub.add_parser(name)
-    arg = sub.add_parser("mode"); arg.add_argument("--members", required=True)
+    arg = sub.add_parser("mode"); arg.add_argument("--members", required=True); arg.add_argument("--self")
     arg = sub.add_parser("cvat"); arg.add_argument("slice"); arg.add_argument("--support", action="store_true")
     arg = sub.add_parser("draft"); arg.add_argument("file")
     arg = sub.add_parser("parking"); arg.add_argument("--file")
@@ -49,8 +49,9 @@ def run(argv=None, base=None):
         print("\n".join(messages))
         return 1 if any(line.startswith("✗") for line in messages) else 0
     if command == "mode":
-        state = mode(base, args.members)
+        state = mode(base, args.members, args.self)
         print("Đã chia slice: " + ", ".join("%s → %s" % pair for pair in sorted(state["assignments"].items())))
+        print("Slice của bạn (%s): %s" % (state["self"], state["slice"]))
     elif command == "cvat":
         print(cvat(base, args.slice, args.support))
     elif command == "draft":
