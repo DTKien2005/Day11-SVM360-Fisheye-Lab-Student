@@ -6,7 +6,7 @@
 
 Bạn sẽ giải một vòng công việc dữ liệu: phân biệt vạch **chia ô đỗ** với vạch chỉ lối xe chạy trên ảnh bãi đỗ; gán nhãn object trên ảnh fisheye; tự soát trước khi xem reference; review bài khác theo guideline; đọc xung đột giữa người, reference và model; sửa có căn cứ; rồi lập kế hoạch sampling/gold set cho **front, rear, left, right**. Đây là một lab chính chứa các nội dung Day 11, không phải chỉ bài sau giờ giảng.
 
-Đầu ra cuối là repo cá nhân **Public** chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `make check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
+Đầu ra cuối là repo cá nhân **Public** chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `python3 lab11.py check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
 
 Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
@@ -34,10 +34,26 @@ Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
 ## Chuẩn bị một lần
 
-1. Trên [repo Student của Day 11](https://github.com/VinUni-AI20k/Day11-SVM360-Fisheye-Lab-Student), chọn **Use this template → Create a new repository** trong tài khoản của bạn; đặt chế độ **Public** để bài có thể được chấm. Template nguồn hiện còn private trước khi phát lớp; nếu bạn chưa có quyền truy cập, hãy đợi link lớp. Clone repo cá nhân về máy và mở terminal tại gốc repo (nơi có `Makefile` và `lab11.py`). Không làm trực tiếp trong template chung.
+### Nếu bạn chưa dùng Terminal hoặc máy không có `make`
+
+Bạn không cần cài `make`. Mở Terminal (Mac) hoặc Command Prompt (Windows) **ngay trong thư mục repo**, nơi có file `lab11.py`, rồi chạy lệnh Python. Trên Mac, trong Terminal gõ `cd ` (có dấu cách), kéo thư mục repo từ Finder vào cửa sổ và nhấn Enter. Trên Windows, mở thư mục repo trong File Explorer, gõ `cmd` vào thanh địa chỉ rồi nhấn Enter.
+
+```bash
+# Mac
+python3 lab11.py --help
+```
+
+```text
+# Windows
+py lab11.py --help
+```
+
+Khi màn hình hiện các lệnh như `doctor`, `cvat` và `check`, bạn đang ở đúng nơi. Từ đây, mọi lệnh trong README dùng `python3`; trên Windows, thay chữ `python3` đầu dòng bằng `py`. [GUIDE.md](GUIDE.md#bắt-đầu-nếu-bạn-chưa-từng-dùng-terminal) hướng dẫn từng cú nhấp, cách kéo thư mục vào Terminal và cách đọc lỗi.
+
+1. Trên [repo Student của Day 11](https://github.com/VinUni-AI20k/Day11-SVM360-Fisheye-Lab-Student), chọn **Use this template → Create a new repository** trong tài khoản của bạn; đặt chế độ **Public** để bài có thể được chấm. Template nguồn hiện còn private trước khi phát lớp; nếu bạn chưa có quyền truy cập, hãy đợi link lớp. Dùng GitHub Desktop hoặc `git clone` để đưa **repo cá nhân** về máy; [GUIDE có từng cú nhấp](GUIDE.md#bắt-đầu-nếu-bạn-chưa-từng-dùng-terminal). Không làm trực tiếp trong template chung.
 2. Mở Docker Desktop và bật **CVAT local đã cài từ Day 2**. Trong thư mục CVAT cũ chạy `docker compose start` (nếu không có container thì `docker compose up -d`), rồi mở `http://localhost:8080` bằng tài khoản của bạn. Không cần CVAT Premium.
-3. Trong repo Day 11, chạy `make doctor`. Dòng CVAT cần báo đang chạy; nếu có `✗`, sửa đúng lỗi trước khi chuyển bước. Không có `make` thì dùng `python3 lab11.py doctor`; các lệnh khác đổi tương tự.
-4. Chạy `make mode MEMBERS=ten-cua-ban` nếu solo. Nếu nhóm 2–3 người đổi bài QA, **mỗi người trong repo riêng** chạy cùng danh sách, nhưng khai tên mình: ví dụ Bình chạy `make mode MEMBERS=an,binh,chi SELF=binh`. Lệnh in `Slice của bạn`; dùng đúng slice đó ở P2. Điền [sensor_context.md](submission/00_setup/sensor_context.md) bằng bối cảnh dữ liệu đang dùng và giới hạn một camera. `make status` luôn gợi ý việc tiếp theo.
+3. Trong repo Day 11, chạy `python3 lab11.py doctor`. Dòng CVAT cần báo đang chạy; nếu có `✗`, sửa đúng lỗi trước khi chuyển bước.
+4. Chạy `python3 lab11.py mode --members ten-cua-ban` nếu solo. Nếu nhóm 2–3 người đổi bài QA, **mỗi người trong repo riêng** chạy cùng danh sách, nhưng khai tên mình: ví dụ Bình chạy `python3 lab11.py mode --members an,binh,chi --self binh`. Lệnh in `Slice của bạn`; dùng đúng slice đó ở P2. Điền [sensor_context.md](submission/00_setup/sensor_context.md) bằng bối cảnh dữ liệu đang dùng và giới hạn một camera. `python3 lab11.py status` luôn gợi ý việc tiếp theo.
 
 Đừng ghi mật khẩu, token hoặc `.env` vào repo. Không chạy `docker compose down -v` vì cờ `-v` có thể xóa task và nhãn CVAT local.
 
@@ -55,7 +71,7 @@ Phần ảnh bãi đỗ và bản nháp kế hoạch bốn camera diễn ra **tr
 | 125–155 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
 | 155–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
 | 200–215 · P5 | Rework một số ca P0/P1 có căn cứ, khóa bản mới, ghi số trước/sau | `rework/annotations-v2.xml`, `delta.md` |
-| 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `make check` exit 0, repo Public có commit mới |
+| 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `python3 lab11.py check` exit 0, repo Public có commit mới |
 
 Nếu bài parking hoặc kế hoạch 200 frame chưa được phác thảo trong giờ giảng, hãy làm chúng trước P1. P6 chỉ dành cho hoàn thiện và kiểm lại; không chờ phút 215 mới bắt đầu hai kế hoạch.
 
@@ -65,48 +81,48 @@ Chạy lệnh trong **repo cá nhân**. `FILE=` có thể là đường dẫn ZI
 
 ```bash
 # Phần giảng: dùng task riêng cho ảnh parking.
-make parking
-make parking FILE=/duong-dan/parking-export.zip
+python3 lab11.py parking
+python3 lab11.py parking --file /duong-dan/parking-export.zip
 
 # P1: task hiệu chuẩn C0.
-make cvat SLICE=C0
-make lock ROUND=calib FILE=/duong-dan/c0-export.zip
-make reference ROUND=calib
-make compare ROUND=calib
+python3 lab11.py cvat C0
+python3 lab11.py lock calib /duong-dan/c0-export.zip
+python3 lab11.py reference calib
+python3 lab11.py compare calib
 
-# P2: dùng slice mà make mode/make status đã giao; B1-edge chỉ là ví dụ.
-make cvat SLICE=B1-edge
-make draft FILE=/duong-dan/r1-draft.zip
-make fill
-make selfqc ROUND=r1_craft
+# P2: dùng slice mà mode/status đã giao; B1-edge chỉ là ví dụ.
+python3 lab11.py cvat B1-edge
+python3 lab11.py draft /duong-dan/r1-draft.zip
+python3 lab11.py fill
+python3 lab11.py selfqc r1_craft
 # Sửa trong CVAT, Save và export lần nữa trước khi khóa.
-make lock ROUND=r1_craft FILE=/duong-dan/r1-final.zip
+python3 lab11.py lock r1_craft /duong-dan/r1-final.zip
 
-# P3: thay FILE và CODE bằng bản người bạn giao hoặc bản mình vừa khóa.
-make qa SLICE=B1-edge FILE=/duong-dan/peer-export.zip CODE=XXXX-XXXX
+# P3: thay file và mã bằng bản người bạn giao hoặc bản mình vừa khóa.
+python3 lab11.py qa --slice B1-edge --file /duong-dan/peer-export.zip --code XXXX-XXXX
 
 # P4–P6: mở reference sau lock, kiểm xung đột rồi hoàn thiện bài.
-make reference ROUND=r1_craft
-make compare ROUND=r1_craft
-make local-quality
-make model
-make iou-sweep IOU=0.3,0.5,0.7
-make triage
-make lock ROUND=rework FILE=/duong-dan/rework-export.zip
-make rework
-make card
-make status
-make check
+python3 lab11.py reference r1_craft
+python3 lab11.py compare r1_craft
+python3 lab11.py local-quality
+python3 lab11.py model
+python3 lab11.py iou-sweep --iou 0.3,0.5,0.7
+python3 lab11.py triage
+python3 lab11.py lock rework /duong-dan/rework-export.zip
+python3 lab11.py rework
+python3 lab11.py card
+python3 lab11.py status
+python3 lab11.py check
 ```
 
-`make draft` tạo `exports/r1-draft.xml` để `make fill` và `make selfqc` có dữ liệu. Bản nháp **chưa** phải bài nộp; sau khi sửa phải Save, export lần nữa và `make lock`. Mã khóa từ lệnh lock dùng để QA, không tự chế. `make reference` chỉ chạy sau lock để giữ vòng tự soát độc lập. `make local-quality` chạy ngay trên máy, xuất `local_quality.md`, JSON, ma trận nhầm lớp và CSV xung đột; không phụ thuộc trang Quality Control trả phí của CVAT. Chỉ số là độ khớp với **teaching reference** của vài frame, không phải điểm rubric hay chứng nhận gold set.
+`python3 lab11.py draft` tạo `exports/r1-draft.xml` để `fill` và `selfqc` có dữ liệu. Bản nháp **chưa** phải bài nộp; sau khi sửa phải Save, export lần nữa và khóa. Mã khóa từ lệnh lock dùng để QA, không tự chế. `python3 lab11.py reference` chỉ chạy sau lock để giữ vòng tự soát độc lập. `python3 lab11.py local-quality` chạy ngay trên máy, xuất `local_quality.md`, JSON, ma trận nhầm lớp và CSV xung đột; không phụ thuộc trang Quality Control trả phí của CVAT. Chỉ số là độ khớp với **teaching reference** của vài frame, không phải điểm rubric hay chứng nhận gold set.
 
 ### Cần nhìn hình nào ở đúng thời điểm?
 
 - **Trước khi vẽ parking:** hai ảnh bãi đỗ phía trên. Chỉ nạp ảnh lõi vào task; ảnh đối chiếu giúp hỏi “vạch này chia ô hay dẫn lối xe?”.
 - **Trước P2:** mở ảnh fisheye gốc trong `assets/images/` để thấy vòng kính, méo rìa và thân xe ego. [GUIDE mục P2](GUIDE.md#p2-gán-nhãn-fisheye-tự-soát-và-khóa-bản-cuối) có ảnh minh họa cùng luật box/ignore.
 - **P1 clinic:** thảo luận [sáu câu hỏi thường nhầm](docs/06-misconceptions-vi.md) sau khi tự chọn đáp án. Chưa mở worked overlay của slice để giữ phần QA mù ở P3.
-- **P4 sau lock và QA mù:** `make worked` mở [6 ca đúng/sai/mơ hồ](assets/worked/index.html). Mở thêm `submission/r1_craft/compare.html` và `submission/r3_diag/model_compare.html` trong trình duyệt; dùng bảng conflict để tìm đúng hình, không chỉ đọc một số accuracy.
+- **P4 sau lock và QA mù:** `python3 lab11.py worked` mở [6 ca đúng/sai/mơ hồ](assets/worked/index.html). Mở thêm `submission/r1_craft/compare.html` và `submission/r3_diag/model_compare.html` trong trình duyệt; dùng bảng conflict để tìm đúng hình, không chỉ đọc một số accuracy.
 
 ## Hiện vật cần nộp và cách đọc rubric
 
@@ -120,17 +136,17 @@ make check
 | SVM bốn camera | `45_review_plan.md`, `45_sampling_plan.csv`, `46_gold_set_plan.md`, `50_exit_ticket.md` | Tám ô normal/hard cộng 200; ca khó và review riêng mỗi camera; seam/tracking có điều kiện. |
 | Bàn giao | `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`, `reflection.md`, `screenshots/` | Rule và quyết định truy được, ít nhất hai ảnh minh chứng. |
 
-`make check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân Public**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
+`python3 lab11.py check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân Public**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
 
 ## Khi kẹt, xử lý theo tín hiệu
 
 | Tín hiệu | Kiểm ngay |
 |---|---|
-| `make doctor` báo CVAT chưa chạy | Bật Docker Desktop, trong thư mục CVAT cũ chạy `docker compose start`, rồi `make doctor` lại. |
-| `make fill` hoặc self-QC báo thiếu export | Save trong CVAT → export **CVAT for images 1.1** → `make draft FILE=<ZIP vừa tải>`; đừng dùng file prefill làm export bài mình. |
+| `python3 lab11.py doctor` báo CVAT chưa chạy | Bật Docker Desktop, trong thư mục CVAT cũ chạy `docker compose start`, rồi chạy lại `python3 lab11.py doctor`. |
+| `fill` hoặc self-QC báo thiếu export | Save trong CVAT → export **CVAT for images 1.1** → `python3 lab11.py draft <ZIP vừa tải>`; đừng dùng file prefill làm export bài mình. |
 | Import prefill không lên | Kiểm task có đúng ba ảnh, đúng tên slice và labels Raw; nạp đúng `assets/prefill/<slice>.xml`. [GUIDE](GUIDE.md) có thứ tự nút. |
-| `make check` báo thiếu frame/file hoặc còn `TODO` | Chạy `make status`, mở đúng file được báo, sửa trên ảnh/CVAT khi cần rồi export lại. |
+| `python3 lab11.py check` báo thiếu frame/file hoặc còn `TODO` | Chạy `python3 lab11.py status`, mở đúng file được báo, sửa trên ảnh/CVAT khi cần rồi export lại. |
 | Số local quality thấp | Mở `local_quality_conflicts.csv` và overlay, đối chiếu từng case với rule/reference. Không sửa số báo cáo bằng tay. |
-| Trễ mốc 5 phút | Dùng thứ tự cắt có ghi dấu ở [time-box](docs/08-degrade-vi.md); không bỏ lock, reference, local quality, parking, hai kế hoạch bốn camera hoặc `make check`. |
+| Trễ mốc 5 phút | Dùng thứ tự cắt có ghi dấu ở [time-box](docs/08-degrade-vi.md); không bỏ lock, reference, local quality, parking, hai kế hoạch bốn camera hoặc `python3 lab11.py check`. |
 
 Quy tắc chi tiết cho ca khó ở [docs/02-rules-vi.md](docs/02-rules-vi.md), [taxonomy và cách ghép](docs/05-taxonomy-vi.md), [bốn camera/BEV](docs/10-svm360-reading-vi.md). Đây là **tài liệu tra cứu** khi quyết định một ca; đường đi làm bài nằm ở README và GUIDE. Nguồn ảnh và giấy phép ở [DATA_LICENSES.md](docs/DATA_LICENSES.md).

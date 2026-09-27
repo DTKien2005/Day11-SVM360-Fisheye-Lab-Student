@@ -22,11 +22,11 @@ Tạo một task CVAT trên **ảnh chụp bãi đỗ**, vẽ ít nhất hai `pa
 
 ## Làm trong CVAT
 
-1. Chạy `make parking` để lấy đúng đường dẫn ảnh và `assets/parking/labels.json`. Tạo task tên `Day11 · parking_line · public-sample`, nạp **chỉ** `parking-lot-core.jpg` và dán hai nhãn từ file JSON.
+1. Chạy `python3 lab11.py parking` để lấy đúng đường dẫn ảnh và `assets/parking/labels.json` (Windows: `py lab11.py parking`). Tạo task tên `Day11 · parking_line · public-sample`, nạp **chỉ** `parking-lot-core.jpg` và dán hai nhãn từ file JSON.
 2. Vẽ ít nhất hai polyline `parking_line` ở hai vạch chia ô đỗ khác nhau. Vẽ một polygon `free_space` cho đoạn lối xe chạy thấy rõ. Soát lại hình học theo ảnh; không nối qua phần sơn khuất.
-3. Export **CVAT for images 1.1** (không kèm ảnh). Chạy `make parking FILE=<đường-dẫn-file-zip>`; chương trình lưu `submission/parking/annotations.xml` và kiểm loại hình cùng số lượng tối thiểu. Nó **không** phán xét vạch nào đúng; người soát sẽ xem trên ảnh.
+3. Export **CVAT for images 1.1** (không kèm ảnh). Chạy `python3 lab11.py parking --file <đường-dẫn-file-zip>`; chương trình lưu `submission/parking/annotations.xml` và kiểm loại hình cùng số lượng tối thiểu. Nó **không** phán xét vạch nào đúng; người soát sẽ xem trên ảnh.
 4. Điền `submission/parking/observations.md`: nêu hai vạch đã chọn, một dấu sơn/biên đã loại, vị trí `free_space`, và lý do. Chụp màn hình nếu một ca khó cần giải thích.
 
-**Xong khi:** export được nhận, ghi chú không còn `TODO`, và bạn có thể chỉ ra trên ảnh vì sao một vạch là ranh ô đỗ còn một vạch khác không phải. Nếu CVAT không nhận ảnh hoặc export, báo Lab Coach; đừng tạo XML rỗng để qua `make check`.
+**Xong khi:** export được nhận, ghi chú không còn `TODO`, và bạn có thể chỉ ra trên ảnh vì sao một vạch là ranh ô đỗ còn một vạch khác không phải. Nếu CVAT không nhận ảnh hoặc export, báo Lab Coach; đừng tạo XML rỗng để qua `python3 lab11.py check`.
 
 Muốn theo trọn luồng Day 11 mà không mở nhiều file, quay về [README](../README.md) và [GUIDE](../GUIDE.md).
