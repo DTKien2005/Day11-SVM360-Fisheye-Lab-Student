@@ -37,7 +37,7 @@ def lock_paths(base, round_name):
 def intact_lock(base, round_name):
     target, lock_path = lock_paths(base, round_name)
     if not target.is_file() or not lock_path.is_file():
-        raise LabError("Chưa khóa export — chạy make lock trước khi mở reference")
+        raise LabError("Chưa khóa export — chạy python3 lab11.py lock <round> <file-export> trước khi mở reference")
     values = lock_values(lock_path)
     if digest(target.read_bytes()) != values.get("sha256"):
         raise LabError("File export đã thay đổi sau khi khóa; cần khóa lại")
@@ -107,7 +107,7 @@ def lock_export(base, round_name, source, relock=False):
     old = lock_path.read_text(encoding="utf-8") if lock_path.is_file() else ""
     value = digest(data)
     if old and lock_values(lock_path).get("sha256") != value and not relock:
-        raise LabError("Đã khóa file khác; dùng RELOCK=1 nếu cần khóa lại")
+        raise LabError("Đã khóa file khác; dùng --relock nếu cần khóa lại")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(data)
     if old and lock_values(lock_path).get("sha256") == value:

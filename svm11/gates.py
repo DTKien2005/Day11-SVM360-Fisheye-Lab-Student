@@ -205,16 +205,16 @@ def check(base):
         manifest.append(entry)
     doctor_path = sub / "00_setup" / "doctor.txt"
     if doctor_path.is_file() and any(line.startswith("✗") for line in doctor_path.read_text(encoding="utf-8").splitlines()):
-        failures.append("doctor còn lỗi; chạy make doctor lại sau khi sửa môi trường")
+        failures.append("doctor còn lỗi; chạy python3 lab11.py doctor lại sau khi sửa môi trường")
     quality_path = sub / "r3_diag" / "local_quality.json"
     if quality_path.is_file():
         try:
             report = json.loads(quality_path.read_text(encoding="utf-8"))
             locked = lock_values(sub / "r1_craft" / "lock.txt")
             if report.get("locked_sha256") != locked.get("sha256"):
-                failures.append("local_quality cũ so với bản export đã khóa; chạy make local-quality lại")
+                failures.append("local_quality cũ so với bản export đã khóa; chạy python3 lab11.py local-quality lại")
         except (OSError, ValueError):
-            failures.append("local_quality.json không hợp lệ; chạy make local-quality lại")
+            failures.append("local_quality.json không hợp lệ; chạy python3 lab11.py local-quality lại")
     parking_path = sub / "parking" / "annotations.xml"
     if parking_path.is_file():
         from .parking import validate_export

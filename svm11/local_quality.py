@@ -140,7 +140,7 @@ def local_quality(base):
     left = parse_file(locked_path)
     reference_path = base / "data" / "_ref" / (slice_id + ".xml")
     if not reference_path.is_file():
-        raise LabError("Chưa mở teaching reference — chạy make reference ROUND=r1_craft")
+        raise LabError("Chưa mở teaching reference — chạy python3 lab11.py reference r1_craft")
     reference = parse_file(reference_path)
     mode_path = base / "submission" / "00_setup" / "mode.json"
     mode = read_json(mode_path) if mode_path.is_file() else {}

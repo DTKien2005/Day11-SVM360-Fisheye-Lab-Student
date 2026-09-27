@@ -21,11 +21,11 @@ def mode(base, members, self_name=None):
         raise LabError("MEMBERS cần 1–3 tên khác nhau")
     own_name = (self_name or "").strip()
     if len(names) > 1 and not own_name:
-        raise LabError("Nhóm nhiều người cần SELF=<tên của bạn> trong MEMBERS")
+        raise LabError("Nhóm nhiều người cần --self <tên của bạn> trong --members")
     if not own_name:
         own_name = names[0]
     if own_name not in names:
-        raise LabError("SELF phải là một tên trong MEMBERS")
+        raise LabError("--self phải là một tên trong --members")
     choices = sorted(key for key in slices(base) if key != "C0")
     if len(choices) < len(names):
         raise LabError("Không đủ slice để chia thành viên")
@@ -36,7 +36,7 @@ def mode(base, members, self_name=None):
         assignments[name] = available.pop(position)
     path = base / "submission" / "00_setup" / "mode.json"
     previous = read_json(path) if path.is_file() else {}
-    value = dict(previous)  # keep what make cvat wrote (current_slice, support prefill ids)
+    value = dict(previous)  # keep current-slice and support-prefill state from the CVAT command
     value.update({"members": names, "assignments": assignments,
                   "self": own_name, "slice": assignments[own_name],
                   "degrade": previous.get("degrade", [])})
@@ -129,73 +129,73 @@ def status(base):
     doctor_path = sub / "00_setup" / "doctor.txt"
     if not complete("00_setup/doctor.txt") or (doctor_path.is_file() and any(
             line.startswith("✗") for line in doctor_path.read_text(encoding="utf-8").splitlines())):
-        return "make doctor"
+        return "python3 lab11.py doctor"
     if not complete("00_setup/mode.json"):
-        return "make mode MEMBERS=ten"
+        return "python3 lab11.py mode --members ten"
     mode_state = read_json(sub / "00_setup" / "mode.json")
     own_slice = mode_state.get("slice") or mode_state.get("own_slice")
     if not complete("00_setup/sensor_context.md"):
         return "Điền submission/00_setup/sensor_context.md"
     if not complete("parking/annotations.xml"):
-        return "Mở docs/11-parking-lines-vi.md → make parking FILE=<file-export-zip>"
+        return "Mở docs/11-parking-lines-vi.md → python3 lab11.py parking --file <file-export-zip>"
     if not complete("parking/observations.md"):
         return "Điền submission/parking/observations.md"
     if not complete("p1_calib/lock.txt"):
         if mode_state.get("current_slice") != "C0":
-            return "make cvat SLICE=C0"
-        return "make lock ROUND=calib FILE=exports/c0.zip"
+            return "python3 lab11.py cvat C0"
+        return "python3 lab11.py lock calib exports/c0.zip"
     if not complete("p1_calib/reference.txt"):
-        return "make reference ROUND=calib"
+        return "python3 lab11.py reference calib"
     if not complete("p1_calib/compare.md"):
-        return "make compare ROUND=calib"
+        return "python3 lab11.py compare calib"
     if mode_state.get("current_slice") != own_slice or not own_slice:
-        return "make cvat SLICE=%s" % (own_slice or "<slice>")
+        return "python3 lab11.py cvat %s" % (own_slice or "<slice>")
     if not (base / "exports" / "r1-draft.xml").is_file() and not complete("r1_craft/lock.txt"):
-        return "Export bản nháp từ CVAT → make draft FILE=<duong-dan-file-zip>"
+        return "Export bản nháp từ CVAT → python3 lab11.py draft <duong-dan-file-zip>"
     selfqc_path = sub / "r1_craft" / "selfqc.md"
     selfqc_text = selfqc_path.read_text(encoding="utf-8") if selfqc_path.is_file() else ""
     if "k12" not in mode_state.get("degrade", []) and "Fill ratio (K12)" not in selfqc_text:
-        return "make fill ROUND=r1_craft"
+        return "python3 lab11.py fill r1_craft"
     if "# Tự soát" not in selfqc_text or "## Checklist thủ công" not in selfqc_text:
-        return "make selfqc ROUND=r1_craft"
+        return "python3 lab11.py selfqc r1_craft"
     checklist = [line for line in selfqc_text.splitlines() if line.startswith("- [")]
     if len(checklist) < 9 or any(not line.lower().startswith("- [x]") for line in checklist):
         return "Hoàn thành checklist trong submission/r1_craft/selfqc.md"
     if not complete("r1_craft/lock.txt"):
-        return "make lock ROUND=r1_craft FILE=exports/r1.zip"
+        return "python3 lab11.py lock r1_craft exports/r1.zip"
     if not complete("r2_qa/qa_review.md"):
         if (sub / "r2_qa" / "qa_review.md").is_file():
             return "Điền submission/r2_qa/qa_review.md"
-        return "make qa SLICE=%s FILE=annotations.xml CODE=XXXX-XXXX" % own_slice
+        return "python3 lab11.py qa --slice %s --file annotations.xml --code XXXX-XXXX" % own_slice
     if not complete("r1_craft/reference.txt"):
-        return "make reference ROUND=r1_craft"
+        return "python3 lab11.py reference r1_craft"
     if not complete("r1_craft/compare.md"):
-        return "make compare ROUND=r1_craft"
+        return "python3 lab11.py compare r1_craft"
     quality_files = ("r3_diag/local_quality.md", "r3_diag/local_quality.json",
                      "r3_diag/local_quality_conflicts.csv", "r3_diag/local_quality_confusion.csv")
     if not all(complete(name) for name in quality_files):
-        return "make local-quality"
+        return "python3 lab11.py local-quality"
     try:
         quality = read_json(sub / "r3_diag" / "local_quality.json")
     except LabError:
-        return "make local-quality"
+        return "python3 lab11.py local-quality"
     if quality.get("locked_sha256") != lock_values(sub / "r1_craft" / "lock.txt").get("sha256"):
-        return "make local-quality"
+        return "python3 lab11.py local-quality"
     if not complete("r3_diag/model_compare.md"):
-        return "make model"
+        return "python3 lab11.py model"
     if not complete("r3_diag/iou_sweep.md"):
-        return "make iou-sweep IOU=0.3,0.5,0.7"
+        return "python3 lab11.py iou-sweep --iou 0.3,0.5,0.7"
     for relative in ("findings.csv", "r3_diag/zone_table.md"):
         if not complete(relative):
             return "Điền submission/" + relative
     if not complete("rework/lock2.txt"):
-        return "make lock ROUND=rework FILE=exports/r2.zip"
+        return "python3 lab11.py lock rework exports/r2.zip"
     if not complete("rework/delta.md"):
-        return "make rework"
+        return "python3 lab11.py rework"
     card_path = sub / "10_error_card.md"
     card_text = card_path.read_text(encoding="utf-8", errors="replace") if card_path.is_file() else ""
     if "# Error analysis card" not in card_text:
-        return "make card"
+        return "python3 lab11.py card"
     if not complete("10_error_card.md"):
         return "Điền submission/10_error_card.md"
     for relative in ("20_guideline_patch.md", "30_escalation_ticket.md", "40_decision_log.csv",
@@ -206,7 +206,7 @@ def status(base):
     screenshots = [path for path in (sub / "screenshots").glob("*") if path.is_file() and not path.name.startswith(".")]
     if len(screenshots) < 2:
         return "Thêm hai ảnh vào submission/screenshots/"
-    return "make check"
+    return "python3 lab11.py check"
 
 
 def worked(base):

@@ -41,7 +41,7 @@ def chosen_slice(base, round_name="r1_craft"):
         return "C0"
     value = data.get("slice") or data.get("own_slice")
     if not value:
-        raise LabError("Chưa chọn slice — chạy make mode hoặc make cvat SLICE=...")
+        raise LabError("Chưa chọn slice — chạy python3 lab11.py mode --members <ten> hoặc python3 lab11.py cvat <slice>")
     return value
 
 

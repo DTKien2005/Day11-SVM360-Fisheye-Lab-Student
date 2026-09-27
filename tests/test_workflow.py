@@ -1,10 +1,12 @@
 import json
+import shlex
 import tempfile
 import unittest
 from pathlib import Path
 
 from svm11.workflow import mode, degrade, status, qa, cleanup
 from svm11.common import code, digest
+from svm11.cli import parser
 from svm11 import LabError
 
 
@@ -17,7 +19,7 @@ class WorkflowTest(unittest.TestCase):
                 "slices": [{"slice": "B1-edge", "frames": ["a.jpg"]},
                            {"slice": "B2-mid", "frames": ["b.jpg"]},
                            {"slice": "B3-dense", "frames": ["d.jpg"]}]}))
-            with self.assertRaisesRegex(LabError, "SELF"):
+            with self.assertRaisesRegex(LabError, "--self"):
                 mode(base, "chi,an,binh")
             first = mode(base, "chi,an,binh", self_name="binh")
             path = base / "submission/00_setup/mode.json"
@@ -29,11 +31,25 @@ class WorkflowTest(unittest.TestCase):
             self.assertEqual(len(set(first["assignments"].values())), 3)
             self.assertEqual(second["slice"], second["assignments"]["binh"])
             self.assertEqual(second["self"], "binh")
-            with self.assertRaisesRegex(LabError, "SELF"):
+            with self.assertRaisesRegex(LabError, "--self"):
                 mode(base, "chi,an,binh", self_name="ngoai-nhom")
             degrade(base, "findings")
             self.assertIn("findings", json.loads((base / "submission/00_setup/mode.json").read_text())["degrade"])
             self.assertIsInstance(status(base), str)
+
+    def test_status_command_forms_parse(self):
+        commands = (
+            "doctor", "mode --members ten", "parking --file parking-export.zip", "cvat C0",
+            "lock calib exports/c0.zip", "reference calib", "compare calib", "cvat B1-edge",
+            "draft r1-draft.zip", "fill r1_craft", "selfqc r1_craft",
+            "lock r1_craft exports/r1.zip",
+            "qa --slice B1-edge --file annotations.xml --code XXXX-XXXX",
+            "reference r1_craft", "compare r1_craft", "local-quality", "model",
+            "iou-sweep --iou 0.3,0.5,0.7", "lock rework exports/r2.zip", "rework", "card", "check",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                parser().parse_args(shlex.split(command))
 
     def test_cleanup_requires_learner_root(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -48,31 +64,31 @@ class WorkflowTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             base = Path(temp)
             sub = base / "submission"
-            self.assertEqual(status(base), "make doctor")
+            self.assertEqual(status(base), "python3 lab11.py doctor")
             for relative in ("00_setup/doctor.txt", "00_setup/sensor_context.md"):
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge"}')
-            self.assertIn("make parking FILE=", status(base))
+            self.assertIn("python3 lab11.py parking --file", status(base))
             for relative in ("parking/annotations.xml", "parking/observations.md"):
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
-            self.assertEqual(status(base), "make cvat SLICE=C0")
+            self.assertEqual(status(base), "python3 lab11.py cvat C0")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","current_slice":"C0"}')
-            self.assertTrue(status(base).startswith("make lock ROUND=calib"))
+            self.assertTrue(status(base).startswith("python3 lab11.py lock calib"))
             for relative in ("p1_calib/lock.txt", "p1_calib/reference.txt", "p1_calib/compare.md"):
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
-            self.assertEqual(status(base), "make cvat SLICE=B1-edge")
+            self.assertEqual(status(base), "python3 lab11.py cvat B1-edge")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","current_slice":"B1-edge"}')
             (sub / "r1_craft").mkdir()
             (sub / "r1_craft/selfqc.md").write_text("TODO")
-            self.assertIn("make draft FILE=", status(base))
+            self.assertIn("python3 lab11.py draft", status(base))
             (base / "exports").mkdir()
             (base / "exports/r1-draft.xml").write_text("draft")
-            self.assertEqual(status(base), "make fill ROUND=r1_craft")
+            self.assertEqual(status(base), "python3 lab11.py fill r1_craft")
             (sub / "r1_craft/selfqc.md").write_text("## Fill ratio (K12)\ndone")
-            self.assertEqual(status(base), "make selfqc ROUND=r1_craft")
+            self.assertEqual(status(base), "python3 lab11.py selfqc r1_craft")
             checklist = "# Tự soát\n## Checklist thủ công\n" + "\n".join("- [x] item" for _ in range(9))
             (sub / "r1_craft/selfqc.md").write_text(checklist + "\n## Fill ratio (K12)\ndone")
-            self.assertTrue(status(base).startswith("make lock ROUND=r1_craft"))
+            self.assertTrue(status(base).startswith("python3 lab11.py lock r1_craft"))
 
     def test_status_checks_final_deliverables(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -98,18 +114,18 @@ class WorkflowTest(unittest.TestCase):
             (sub / "screenshots").mkdir(); (sub / "screenshots/a.png").write_bytes(b"x")
             (sub / "screenshots/b.png").write_bytes(b"x")
             (sub / "10_error_card.md").write_text("# Error card\nTODO")
-            self.assertEqual(status(base), "make card")
+            self.assertEqual(status(base), "python3 lab11.py card")
             (sub / "10_error_card.md").write_text("# Error analysis card\nTODO")
             self.assertEqual(status(base), "Điền submission/10_error_card.md")
             (sub / "10_error_card.md").write_text("# Error analysis card\ndone")
             (sub / "20_guideline_patch.md").write_text("TODO")
             self.assertEqual(status(base), "Điền submission/20_guideline_patch.md")
             (sub / "20_guideline_patch.md").write_text("done")
-            self.assertEqual(status(base), "make check")
+            self.assertEqual(status(base), "python3 lab11.py check")
             (sub / "r3_diag/local_quality.md").unlink()
-            self.assertEqual(status(base), "make local-quality")
+            self.assertEqual(status(base), "python3 lab11.py local-quality")
             (sub / "r3_diag/local_quality.md").write_text("complete\n")
-            self.assertEqual(status(base), "make check")
+            self.assertEqual(status(base), "python3 lab11.py check")
 
     def test_qa_keeps_reviewed_xml_for_zone_resolution(self):
         with tempfile.TemporaryDirectory() as temp:

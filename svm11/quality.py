@@ -103,7 +103,7 @@ def _quality(base, task_id=None):
                                              "frame_selection_method": "manual", "frames": [0, 1, 2]})
     ref_path = base / "data" / "_ref" / (slice_id + ".xml")
     if not ref_path.is_file():
-        raise LabError("Chưa mở reference — chạy make reference")
+        raise LabError("Chưa mở reference — chạy python3 lab11.py reference r1_craft")
     query = urllib.parse.urlencode({"format": "CVAT 1.1"})
     import_result = api.call("POST", "/api/jobs/%s/annotations?%s" % (gt["id"], query), {},
                              [("annotation_file", ref_path.name, ref_path.read_bytes())])
@@ -193,4 +193,4 @@ def cvat_quality(base, task_id=None):
             if secret:
                 message = message.replace(secret, "[ẩn]")
         path.write_text("không chạy được: %s\n" % message, encoding="utf-8")
-        return "CVAT Quality Control không chạy được; dùng make local-quality cho bài lõi"
+        return "CVAT Quality Control không chạy được; dùng python3 lab11.py local-quality cho bài lõi"

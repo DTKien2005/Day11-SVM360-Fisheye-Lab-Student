@@ -16,7 +16,7 @@ def instructions(base):
         "Ảnh đối chiếu: " + str(folder / "parking-lot-contrast.png"),
         "CVAT task: Day11 · parking_line · public-sample",
         "Dán nhãn từ: " + str(folder / "labels.json"),
-        "Export CVAT for images 1.1 rồi chạy make parking FILE=<file-zip>.",
+        "Export CVAT for images 1.1 rồi chạy python3 lab11.py parking --file <file-zip>.",
     ))
 
 

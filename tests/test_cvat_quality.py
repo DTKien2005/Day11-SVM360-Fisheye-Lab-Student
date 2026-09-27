@@ -16,7 +16,7 @@ class QualityTest(unittest.TestCase):
                 message = cvat_quality(Path(temp), task_id=3)
             result = (Path(temp) / "submission/r3_diag/cvat_quality.md").read_text()
             self.assertEqual(result, "không chạy được: offline [ẩn]\n")
-            self.assertIn("make local-quality", message)
+            self.assertIn("python3 lab11.py local-quality", message)
 
     def test_success_calls_ground_truth_settings_and_report(self):
         calls = self.run_success(project_id=5)

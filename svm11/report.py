@@ -56,7 +56,7 @@ def _doc_paths(base, round_name):
     slice_id = lock["slice"]
     ref_path = base / "data" / "_ref" / (slice_id + ".xml")
     if not ref_path.is_file():
-        raise LabError("Chưa mở reference — chạy make reference ROUND=" + round_name)
+        raise LabError("Chưa mở reference — chạy python3 lab11.py reference " + round_name)
     return slice_id, parse_file(left_path), parse_file(ref_path)
 
 
