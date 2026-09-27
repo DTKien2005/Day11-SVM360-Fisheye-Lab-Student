@@ -35,4 +35,4 @@ Rubric này chấm **bằng chứng trong repo bài làm và lập luận gắn 
 2. Vạch chia ô đỗ được nhận theo **vai trò chia ô**, không chỉ theo màu sơn. `free_space` là vùng nhìn thấy trên ảnh tĩnh, không phải tuyên bố an toàn tự hành.
 3. `ego_body` chỉ có khi thân xe xuất hiện; `lens_border` được soát theo vòng kính. Hai frame ngoại lệ không bị ép vẽ ego.
 4. Tập 200 frame là bài thiết kế bốn camera **giả lập**; ba frame ADASIND không đại diện bốn camera.
-5. `make check` qua, repo bài làm vẫn private, và file nộp trên GitHub trùng file đã dùng để giải thích.
+5. `make check` qua, repo bài làm ở chế độ Public, và file nộp trên GitHub trùng file đã dùng để giải thích.

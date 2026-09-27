@@ -1,12 +1,12 @@
 # Day 11 — SVM/360 Fisheye Lab
 
-**Bài chính Day 11 · thực hành trong giờ giảng + 240 phút lab · mỗi học viên nộp một repo private.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
+**Bài chính Day 11 · thực hành trong giờ giảng + 240 phút lab · mỗi học viên nộp một repo Public.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
 
 ## Bạn sẽ làm gì và nộp gì?
 
 Bạn sẽ giải một vòng công việc dữ liệu: phân biệt vạch **chia ô đỗ** với vạch chỉ lối xe chạy trên ảnh bãi đỗ; gán nhãn object trên ảnh fisheye; tự soát trước khi xem reference; review bài khác theo guideline; đọc xung đột giữa người, reference và model; sửa có căn cứ; rồi lập kế hoạch sampling/gold set cho **front, rear, left, right**. Đây là một lab chính chứa các nội dung Day 11, không phải chỉ bài sau giờ giảng.
 
-Đầu ra cuối là repo cá nhân private chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `make check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
+Đầu ra cuối là repo cá nhân **Public** chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `make check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
 
 Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
@@ -34,7 +34,7 @@ Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
 ## Chuẩn bị một lần
 
-1. Trên [repo Student của Day 11](https://github.com/VinUni-AI20k/Day11-SVM360-Fisheye-Lab-Student), chọn **Use this template → Create a new repository** trong tài khoản của bạn; đặt chế độ **Private**. Clone repo cá nhân về máy và mở terminal tại gốc repo (nơi có `Makefile` và `lab11.py`). Không làm trực tiếp trong template chung.
+1. Trên [repo Student của Day 11](https://github.com/VinUni-AI20k/Day11-SVM360-Fisheye-Lab-Student), chọn **Use this template → Create a new repository** trong tài khoản của bạn; đặt chế độ **Public** để bài có thể được chấm. Template nguồn hiện còn private trước khi phát lớp; nếu bạn chưa có quyền truy cập, hãy đợi link lớp. Clone repo cá nhân về máy và mở terminal tại gốc repo (nơi có `Makefile` và `lab11.py`). Không làm trực tiếp trong template chung.
 2. Mở Docker Desktop và bật **CVAT local đã cài từ Day 2**. Trong thư mục CVAT cũ chạy `docker compose start` (nếu không có container thì `docker compose up -d`), rồi mở `http://localhost:8080` bằng tài khoản của bạn. Không cần CVAT Premium.
 3. Trong repo Day 11, chạy `make doctor`. Dòng CVAT cần báo đang chạy; nếu có `✗`, sửa đúng lỗi trước khi chuyển bước. Không có `make` thì dùng `python3 lab11.py doctor`; các lệnh khác đổi tương tự.
 4. Chạy `make mode MEMBERS=ten-cua-ban` nếu solo. Nếu nhóm 2–3 người đổi bài QA, **mỗi người trong repo riêng** chạy cùng danh sách, nhưng khai tên mình: ví dụ Bình chạy `make mode MEMBERS=an,binh,chi SELF=binh`. Lệnh in `Slice của bạn`; dùng đúng slice đó ở P2. Điền [sensor_context.md](submission/00_setup/sensor_context.md) bằng bối cảnh dữ liệu đang dùng và giới hạn một camera. `make status` luôn gợi ý việc tiếp theo.
@@ -55,7 +55,7 @@ Phần ảnh bãi đỗ và bản nháp kế hoạch bốn camera diễn ra **tr
 | 125–155 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
 | 155–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
 | 200–215 · P5 | Rework một số ca P0/P1 có căn cứ, khóa bản mới, ghi số trước/sau | `rework/annotations-v2.xml`, `delta.md` |
-| 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `make check` exit 0, repo private có commit mới |
+| 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `make check` exit 0, repo Public có commit mới |
 
 Nếu bài parking hoặc kế hoạch 200 frame chưa được phác thảo trong giờ giảng, hãy làm chúng trước P1. P6 chỉ dành cho hoàn thiện và kiểm lại; không chờ phút 215 mới bắt đầu hai kế hoạch.
 
@@ -120,7 +120,7 @@ make check
 | SVM bốn camera | `45_review_plan.md`, `45_sampling_plan.csv`, `46_gold_set_plan.md`, `50_exit_ticket.md` | Tám ô normal/hard cộng 200; ca khó và review riêng mỗi camera; seam/tracking có điều kiện. |
 | Bàn giao | `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`, `reflection.md`, `screenshots/` | Rule và quyết định truy được, ít nhất hai ảnh minh chứng. |
 
-`make check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân private**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
+`make check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân Public**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
 
 ## Khi kẹt, xử lý theo tín hiệu
 
