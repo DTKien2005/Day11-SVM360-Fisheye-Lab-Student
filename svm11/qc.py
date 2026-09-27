@@ -1,7 +1,10 @@
-"""Fill ratio and automatic self-checks."""
+"""Draft export staging, fill ratio, and automatic self-checks."""
+from pathlib import Path
+
 from . import LabError
-from .common import circles, round_dir
-from .cvat_xml import boxes, parse_file, polygons
+from .common import chosen_slice, circles, read_json, round_dir, slices
+from .cvat_xml import boxes, parse_bytes, parse_file, polygons, xml_bytes
+from .locking import intact_lock, lock_paths
 from .match import iou
 from .zones import ignored, in_scope, truncated, zone
 
@@ -10,6 +13,29 @@ CHECKLIST = [
     "Rider và Bike", "Geometry trên ảnh fisheye gốc", "truncated và occluded",
     "Vật thiếu hoặc box trùng", "ignore_region có reason", "Tên task raw_fisheye và export CVAT 1.1",
 ]
+
+# The two selected ADASIND frames where no ego-vehicle body is visible.
+NO_EGO_FRAMES = {"adasind_006840.jpg", "adasind_271039.jpg"}
+
+
+def stage_draft(base, source):
+    """Copy a CVAT draft export into the predictable path used by self-QC."""
+    base = Path(base)
+    data = xml_bytes(source)
+    document = parse_bytes(data)
+    expected = set(slices(base)[chosen_slice(base)])
+    actual = set(document["images"])
+    mode_path = base / "submission" / "00_setup" / "mode.json"
+    mode = read_json(mode_path) if mode_path.is_file() else {}
+    allowed = expected if "frame3" not in mode.get("degrade", []) else set(
+        slices(base)[chosen_slice(base)][:2])
+    if not actual or actual - expected or (actual != expected and actual != allowed):
+        missing = ", ".join(sorted(expected - actual))
+        raise LabError("Bản nháp thiếu/sai frame trong slice" + (": " + missing if missing else ""))
+    path = base / "exports" / "r1-draft.xml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return path
 
 
 def polygon_area(points):
@@ -38,6 +64,13 @@ def fill_ratios(shapes):
 
 
 def draft_or_locked(base, round_name):
+    _, lock_file = lock_paths(base, round_name)
+    if lock_file.is_file():
+        return intact_lock(base, round_name)[0]
+    if round_name == "r1_craft":
+        draft = base / "exports" / "r1-draft.xml"
+        if draft.is_file():
+            return draft
     stems = {"calib": ("c0", "calib"), "r1_craft": ("r1", "r1_craft"),
              "rework": ("r2", "rework")}[round_name]
     for stem in stems:
@@ -83,6 +116,14 @@ def selfqc(base, round_name="r1_craft"):
     doc = parse_file(draft_or_locked(base, round_name))
     circle_map = circles(base)
     lines = ["# Tự soát", ""]
+    mode_path = base / "submission" / "00_setup" / "mode.json"
+    if mode_path.is_file() and round_name == "r1_craft":
+        expected_frames = slices(base)[chosen_slice(base)]
+        mode = read_json(mode_path)
+        required_frames = expected_frames[:2] if "frame3" in mode.get("degrade", []) else expected_frames
+        for frame in required_frames:
+            if frame not in doc["images"]:
+                lines.append("- Thiếu frame trong export: " + frame)
     for frame, image in doc["images"].items():
         if frame not in circle_map:
             raise LabError("Thiếu vòng kính trong frames.csv: " + frame)
@@ -104,9 +145,12 @@ def selfqc(base, round_name="r1_craft"):
                 if left["label"] == right["label"] and iou(left["box"], right["box"]) > .7:
                     lines.append("- %s: hai box cùng class IoU > 0.7" % frame)
         reasons = {p["attrs"].get("reason") for p in ignore_shapes}
-        for reason in ("ego_body", "lens_border"):
+        required_reasons = ("lens_border",) if frame in NO_EGO_FRAMES else ("ego_body", "lens_border")
+        for reason in required_reasons:
             if reason not in reasons:
                 lines.append("- %s: thiếu %s" % (frame, reason))
+        if frame in NO_EGO_FRAMES and "ego_body" in reasons:
+            lines.append("- %s: ego_body thừa (frame không thấy thân xe)" % frame)
         if None in reasons or "" in reasons:
             lines.append("- %s: ignore_region thiếu reason" % frame)
     if "raw_fisheye" not in doc["meta"]:

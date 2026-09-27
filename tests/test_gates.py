@@ -6,6 +6,7 @@ from pathlib import Path
 
 from svm11.gates import check, _zone_for_row
 from svm11.findings import HEADER
+from svm11.common import digest
 
 
 class GatesTest(unittest.TestCase):
@@ -35,6 +36,8 @@ class GatesTest(unittest.TestCase):
             failures = check(base)
             self.assertTrue(any("findings" in value for value in failures))
             (base / "assets").mkdir()
+            (base / "assets" / "slices.json").write_text(
+                '{"slices":[{"slice":"B1-edge","frames":["f.jpg"]}]}')
             (base / "assets" / "frames.csv").write_text("frame,file,cx,cy,r\n0,f.jpg,0,0,100\n")
             sub = base / "submission"
             (sub / "00_setup").mkdir(parents=True)
@@ -49,6 +52,8 @@ class GatesTest(unittest.TestCase):
             base = Path(temp)
             sub = base / "submission"
             (base / "assets").mkdir()
+            (base / "assets" / "slices.json").write_text(
+                '{"slices":[{"slice":"B1-edge","frames":["f.jpg"]}]}')
             (base / "assets" / "frames.csv").write_text("frame,file,cx,cy,r\n0,f.jpg,0,0,100\n")
             (sub / "00_setup").mkdir(parents=True)
             (sub / "00_setup" / "mode.json").write_text('{"slice":"B1-edge"}')
@@ -67,15 +72,36 @@ class GatesTest(unittest.TestCase):
                         "r1_craft/lock.txt",
                         "r1_craft/selfqc.md", "r1_craft/reference.txt", "r1_craft/compare.md",
                         "r1_craft/compare.html", "r2_qa/qa_review.md", "r2_qa/qa_overlay.html",
-                        "r3_diag/cvat_quality.md", "r3_diag/model_compare.md", "r3_diag/model_compare.html",
+                        "r3_diag/local_quality.md", "r3_diag/local_quality.json",
+                        "r3_diag/local_quality_conflicts.csv", "r3_diag/local_quality_confusion.csv",
+                        "r3_diag/model_compare.md", "r3_diag/model_compare.html",
                         "r3_diag/zone_table.md", "rework/lock2.txt", "rework/delta.md",
                         "10_error_card.md", "20_guideline_patch.md", "30_escalation_ticket.md",
                         "45_review_plan.md", "50_exit_ticket.md", "reflection.md"]
             for relative in required:
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("before 2 after 3\n" if relative.endswith("delta.md") else "complete\n")
+            value = digest((sub / "r1_craft/annotations.xml").read_bytes())
+            (sub / "r1_craft/lock.txt").write_text("sha256: %s\n" % value)
+            (sub / "r3_diag/local_quality.json").write_text(json.dumps({"locked_sha256": value}))
             (sub / "40_decision_log.csv").write_text(
                 "id,status,rationale\n1,done,a\n2,done,b\n3,done,c\n4,escalated,d\n")
+            (sub / "parking/annotations.xml").parent.mkdir(parents=True)
+            (sub / "parking/annotations.xml").write_text(
+                '<annotations><version>1.1</version><image id="0" name="parking-lot-core.jpg" '
+                'width="960" height="720">'
+                '<polyline label="parking_line" points="1,1;2,2"/>'
+                '<polyline label="parking_line" points="3,3;4,4"/>'
+                '<polygon label="free_space" points="10,10;20,10;20,20"/>'
+                '</image></annotations>')
+            (sub / "parking/observations.md").write_text("Hai vạch chia ô; không vẽ mép lối xe chạy.\n")
+            with (sub / "45_sampling_plan.csv").open("w", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(["camera_id", "slice_type", "frames", "risk", "rationale"])
+                for camera in ("front", "rear", "left", "right"):
+                    writer.writerow([camera, "normal", 25, "coverage", "baseline"])
+                    writer.writerow([camera, "hard", 25, "ambiguity", "review"])
+            (sub / "46_gold_set_plan.md").write_text("Mỗi camera có ca riêng và phân xử theo guideline.\n")
             (sub / "screenshots").mkdir()
             (sub / "screenshots/edge.png").write_bytes(b"image")
             (sub / "screenshots/ignore.png").write_bytes(b"image")
@@ -94,9 +120,35 @@ class GatesTest(unittest.TestCase):
             with (sub / "findings.csv").open("w", newline="") as stream:
                 writer = csv.DictWriter(stream, HEADER); writer.writeheader(); writer.writerows(rows)
             self.assertEqual(check(base), [])
-            (sub / "r3_diag/cvat_quality.md").unlink()
-            self.assertIn("Thiếu file r3_diag/cvat_quality.md", check(base))
-            (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","degrade":["cvat_quality"]}')
+            (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","degrade":["findings"]}')
+            with (sub / "findings.csv").open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, HEADER); writer.writeheader()
+                writer.writerows(rows[index] for index in (0, 1, 3, 4, 6, 7, 8, 9))
+            self.assertEqual(check(base), [])
+            (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge"}')
+            with (sub / "findings.csv").open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, HEADER); writer.writeheader(); writer.writerows(rows)
+            (sub / "45_sampling_plan.csv").write_text("camera_id,slice_type,frames,risk,rationale\nfront,normal,200,x,x\n")
+            self.assertTrue(any("45_sampling_plan.csv" in error for error in check(base)))
+            with (sub / "45_sampling_plan.csv").open("w", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(["camera_id", "slice_type", "frames", "risk", "rationale"])
+                for camera in ("front", "rear", "left", "right"):
+                    writer.writerow([camera, "normal", 25, "coverage", "baseline"])
+                    writer.writerow([camera, "hard", 25, "ambiguity", "review"])
+            (sub / "r3_diag/local_quality.json").write_text('{"locked_sha256":"stale"}')
+            self.assertTrue(any("local_quality cũ" in error for error in check(base)))
+            (sub / "r3_diag/local_quality.json").write_text(json.dumps({"locked_sha256": value}))
+            (sub / "r3_diag/local_quality_confusion.csv").unlink()
+            self.assertIn("Thiếu file r3_diag/local_quality_confusion.csv", check(base))
+            (sub / "r3_diag/local_quality_confusion.csv").write_text("reference\\export,Car\n")
+            self.assertEqual(check(base), [])
+            with (sub / "45_sampling_plan.csv").open("w", newline="") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(["camera_id", "slice_type", "frames", "risk", "rationale"])
+                for camera in ("front", "rear", "left", "right"):
+                    writer.writerow([" " + camera, "normal ", " 25 ", " coverage ", "baseline"])
+                    writer.writerow([camera + " ", " hard", " 25", "ambiguity", " review "])
             self.assertEqual(check(base), [])
             (sub / "screenshots/ignore.png").rename(sub / "screenshots/.gitkeep")
             self.assertIn("screenshots cần ≥2 ảnh", check(base))

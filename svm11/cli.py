@@ -7,7 +7,9 @@ from . import LabError
 from .common import root
 from .gates import check, doctor, triage
 from .locking import lock_export, reveal_reference
-from .qc import fill, selfqc
+from .local_quality import local_quality
+from .parking import instructions as parking_instructions, save_export as save_parking_export
+from .qc import fill, selfqc, stage_draft
 from .quality import cvat_quality
 from .report import compare, iou_sweep, model
 from .synthesis import card, rework
@@ -17,10 +19,12 @@ from .workflow import cleanup, cvat, degrade, mode, qa, reset_task, status, work
 def parser():
     app = argparse.ArgumentParser(description="Day 11 · SVM/360 fisheye learner lab")
     sub = app.add_subparsers(dest="command", required=True)
-    for name in ("doctor", "model", "triage", "rework", "card", "status", "check", "worked", "reset-task"):
+    for name in ("doctor", "local-quality", "model", "triage", "rework", "card", "status", "check", "worked", "reset-task"):
         sub.add_parser(name)
     arg = sub.add_parser("mode"); arg.add_argument("--members", required=True)
     arg = sub.add_parser("cvat"); arg.add_argument("slice"); arg.add_argument("--support", action="store_true")
+    arg = sub.add_parser("draft"); arg.add_argument("file")
+    arg = sub.add_parser("parking"); arg.add_argument("--file")
     arg = sub.add_parser("lock"); arg.add_argument("round", choices=("calib", "r1_craft", "rework"))
     arg.add_argument("file"); arg.add_argument("--relock", action="store_true")
     arg = sub.add_parser("reference"); arg.add_argument("round", choices=("calib", "r1_craft", "rework"))
@@ -49,6 +53,14 @@ def run(argv=None, base=None):
         print("Đã chia slice: " + ", ".join("%s → %s" % pair for pair in sorted(state["assignments"].items())))
     elif command == "cvat":
         print(cvat(base, args.slice, args.support))
+    elif command == "draft":
+        print("Đã lưu bản nháp để tự soát: " + str(stage_draft(base, args.file)))
+    elif command == "parking":
+        if args.file:
+            path, counts = save_parking_export(base, args.file)
+            print("Đã lưu %s (%d parking_line, %d free_space)" % (path, *counts))
+        else:
+            print(parking_instructions(base))
     elif command == "lock":
         print("Mã khóa: " + lock_export(base, args.round, Path(args.file), args.relock))
     elif command == "reference":
@@ -57,6 +69,8 @@ def run(argv=None, base=None):
         compare(base, args.round); print("Đã ghi compare và findings")
     elif command == "cvat-quality":
         print(cvat_quality(base, args.task_id))
+    elif command == "local-quality":
+        print("Đã ghi báo cáo offline: " + str(local_quality(base)))
     elif command == "model":
         model(base); print("Đã ghi model_compare và findings")
     elif command == "iou-sweep":

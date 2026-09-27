@@ -6,7 +6,7 @@ ENUMS = {
     "round": {"calib", "r1_craft", "r2_qa", "r3_diag", "rework"},
     "cell": {"LRM", "LR_noM", "LM_noR", "L_only", "RM_noL", "R_only", "M_only", "na"},
     "what": {"MISSING", "SPURIOUS", "WRONG_CLASS", "BOX_GEOMETRY", "DUPLICATE", "ATTRIBUTE", "IGNORE_SCOPE", "STRUCTURE"},
-    "why": {"E0_reference_defect", "E1_annotator_error", "E2_guideline_gap", "E3_data_defect", "E4_model_domain"},
+    "why": {"E0_reference_defect", "E1_annotator_error", "E2_guideline_gap", "E3_data_defect", "E4_model_domain", "E5_unresolved"},
     "severity": {"P0", "P1", "P2", "P3"},
     "owner": {"annotator", "guideline", "data_ops", "ai_team", "qa"},
     "action": {"rework", "keep_with_reason", "escalate"},

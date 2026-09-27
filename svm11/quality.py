@@ -1,4 +1,4 @@
-"""Optional CVAT 2.74 quality report; failures never block the lab."""
+"""Optional CVAT Premium API report; local_quality is the core lab path."""
 from collections import Counter
 import getpass
 import json
@@ -193,4 +193,4 @@ def cvat_quality(base, task_id=None):
             if secret:
                 message = message.replace(secret, "[ẩn]")
         path.write_text("không chạy được: %s\n" % message, encoding="utf-8")
-        return "CVAT quality không chạy được; đi tiếp bằng make compare"
+        return "CVAT Quality Control không chạy được; dùng make local-quality cho bài lõi"

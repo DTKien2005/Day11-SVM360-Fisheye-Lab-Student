@@ -84,13 +84,21 @@ def _prefill_counts(base, slice_id, document):
 def lock_export(base, round_name, source, relock=False):
     base, source = Path(base), Path(source)
     slice_id = chosen_slice(base, round_name)
-    frames = set(slices(base).get(slice_id, []))
+    frame_list = slices(base).get(slice_id, [])
+    frames = set(frame_list)
     if not frames:
         raise LabError("Slice không hợp lệ: " + slice_id)
     data = xml_bytes(source)
     document = parse_bytes(data)
     if not document["images"] or set(document["images"]) - frames:
         raise LabError("Export có ảnh ngoài slice hoặc không có ảnh")
+    if round_name == "r1_craft":
+        mode_path = base / "submission" / "00_setup" / "mode.json"
+        mode = read_json(mode_path) if mode_path.is_file() else {}
+        required = set(frame_list[:2] if "frame3" in mode.get("degrade", []) else frame_list)
+        missing = required - set(document["images"])
+        if missing:
+            raise LabError("Export cuối thiếu frame bắt buộc: " + ", ".join(sorted(missing)))
     allowed = {item["name"] for item in read_json(base / "assets" / "labels.json")}
     labels = {s["label"] for image in document["images"].values() for s in image["shapes"]}
     if labels - allowed:

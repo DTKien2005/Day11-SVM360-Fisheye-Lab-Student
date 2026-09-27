@@ -9,15 +9,18 @@ IOU ?=
 TASK_ID ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help doctor mode cvat lock reference compare cvat-quality model iou-sweep qa fill selfqc triage rework card degrade status check worked cleanup reset-task
+.PHONY: help doctor mode cvat draft parking lock reference compare local-quality cvat-quality model iou-sweep qa fill selfqc triage rework card degrade status check worked cleanup reset-task
 
 help:
 	@echo "Day 11 SVM/360 fisheye lab — lệnh học viên"
 	@echo "  make doctor | make mode MEMBERS=an,binh,chi | make status"
 	@echo "  make cvat SLICE=B1-edge [SUPPORT=1]"
+	@echo "  make draft FILE=exports/ban-nhap.zip | make selfqc ROUND=r1_craft | make fill"
+	@echo "  make parking [FILE=exports/parking.zip]"
 	@echo "  make lock ROUND=r1_craft FILE=exports/r1.zip [RELOCK=1]"
 	@echo "  make reference ROUND=r1_craft | make compare ROUND=r1_craft"
-	@echo "  make cvat-quality [TASK_ID=N] | make model | make iou-sweep IOU=0.3,0.5,0.7"
+	@echo "  make local-quality | make model | make iou-sweep IOU=0.3,0.5,0.7"
+	@echo "  make cvat-quality [TASK_ID=N] (tùy chọn nếu có CVAT Premium)"
 	@echo "  make qa SLICE=B1-edge FILE=annotations.xml CODE=XXXX-XXXX"
 	@echo "  make fill ROUND=r1_craft | make selfqc ROUND=r1_craft | make triage"
 	@echo "  make rework | make card | make degrade STEP=k12 | make check"
@@ -34,6 +37,13 @@ cvat:
 	@test -n "$(SLICE)" || { echo "✗ Thiếu SLICE — ví dụ: make cvat SLICE=B1-edge" >&2; exit 2; }
 	$(PYTHON) lab11.py cvat "$(SLICE)" $(if $(filter 1,$(SUPPORT)),--support,)
 
+draft:
+	@test -n "$(FILE)" || { echo "✗ Thiếu FILE — ví dụ: make draft FILE=exports/ban-nhap.zip" >&2; exit 2; }
+	$(PYTHON) lab11.py draft "$(FILE)"
+
+parking:
+	$(PYTHON) lab11.py parking $(if $(FILE),--file "$(FILE)",)
+
 lock:
 	@test -n "$(ROUND)" || { echo "✗ Thiếu ROUND — ví dụ: make lock ROUND=r1_craft FILE=exports/r1.zip" >&2; exit 2; }
 	@test -n "$(FILE)" || { echo "✗ Thiếu FILE — ví dụ: make lock ROUND=r1_craft FILE=exports/r1.zip" >&2; exit 2; }
@@ -49,6 +59,9 @@ compare:
 
 cvat-quality:
 	$(PYTHON) lab11.py cvat-quality $(if $(TASK_ID),--task-id $(TASK_ID),)
+
+local-quality:
+	$(PYTHON) lab11.py local-quality
 
 model:
 	$(PYTHON) lab11.py model

@@ -9,9 +9,10 @@ import webbrowser
 from . import LabError
 from .common import chosen_slice, code, digest, read_json, slices, write_json
 from .cvat_xml import parse_bytes, xml_bytes
+from .locking import lock_values
 from .report import _html, _overlay, scoped
 
-DEGRADE_STEPS = {"stretch", "k12", "frame3", "findings", "zone_table", "rework", "cvat_quality"}
+DEGRADE_STEPS = {"stretch", "k12", "frame3", "findings", "zone_table", "rework"}
 
 
 def mode(base, members):
@@ -119,7 +120,9 @@ def status(base):
         path = sub / relative
         return path.is_file() and path.stat().st_size > 0 and "TODO" not in path.read_text(encoding="utf-8", errors="replace")
 
-    if not complete("00_setup/doctor.txt"):
+    doctor_path = sub / "00_setup" / "doctor.txt"
+    if not complete("00_setup/doctor.txt") or (doctor_path.is_file() and any(
+            line.startswith("✗") for line in doctor_path.read_text(encoding="utf-8").splitlines())):
         return "make doctor"
     if not complete("00_setup/mode.json"):
         return "make mode MEMBERS=ten"
@@ -127,6 +130,10 @@ def status(base):
     own_slice = mode_state.get("slice") or mode_state.get("own_slice")
     if not complete("00_setup/sensor_context.md"):
         return "Điền submission/00_setup/sensor_context.md"
+    if not complete("parking/annotations.xml"):
+        return "Mở docs/11-parking-lines-vi.md → make parking FILE=<file-export-zip>"
+    if not complete("parking/observations.md"):
+        return "Điền submission/parking/observations.md"
     if not complete("p1_calib/lock.txt"):
         if mode_state.get("current_slice") != "C0":
             return "make cvat SLICE=C0"
@@ -137,6 +144,8 @@ def status(base):
         return "make compare ROUND=calib"
     if mode_state.get("current_slice") != own_slice or not own_slice:
         return "make cvat SLICE=%s" % (own_slice or "<slice>")
+    if not (base / "exports" / "r1-draft.xml").is_file() and not complete("r1_craft/lock.txt"):
+        return "Export bản nháp từ CVAT → make draft FILE=<duong-dan-file-zip>"
     selfqc_path = sub / "r1_craft" / "selfqc.md"
     selfqc_text = selfqc_path.read_text(encoding="utf-8") if selfqc_path.is_file() else ""
     if "k12" not in mode_state.get("degrade", []) and "Fill ratio (K12)" not in selfqc_text:
@@ -156,8 +165,16 @@ def status(base):
         return "make reference ROUND=r1_craft"
     if not complete("r1_craft/compare.md"):
         return "make compare ROUND=r1_craft"
-    if "cvat_quality" not in mode_state.get("degrade", []) and not complete("r3_diag/cvat_quality.md"):
-        return "make cvat-quality"
+    quality_files = ("r3_diag/local_quality.md", "r3_diag/local_quality.json",
+                     "r3_diag/local_quality_conflicts.csv", "r3_diag/local_quality_confusion.csv")
+    if not all(complete(name) for name in quality_files):
+        return "make local-quality"
+    try:
+        quality = read_json(sub / "r3_diag" / "local_quality.json")
+    except LabError:
+        return "make local-quality"
+    if quality.get("locked_sha256") != lock_values(sub / "r1_craft" / "lock.txt").get("sha256"):
+        return "make local-quality"
     if not complete("r3_diag/model_compare.md"):
         return "make model"
     if not complete("r3_diag/iou_sweep.md"):
@@ -176,7 +193,8 @@ def status(base):
     if not complete("10_error_card.md"):
         return "Điền submission/10_error_card.md"
     for relative in ("20_guideline_patch.md", "30_escalation_ticket.md", "40_decision_log.csv",
-                     "45_review_plan.md", "50_exit_ticket.md", "reflection.md"):
+                     "45_review_plan.md", "45_sampling_plan.csv", "46_gold_set_plan.md",
+                     "50_exit_ticket.md", "reflection.md"):
         if not complete(relative):
             return "Điền submission/" + relative
     screenshots = [path for path in (sub / "screenshots").glob("*") if path.is_file() and not path.name.startswith(".")]

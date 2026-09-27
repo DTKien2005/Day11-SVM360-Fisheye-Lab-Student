@@ -46,6 +46,9 @@ class WorkflowTest(unittest.TestCase):
             for relative in ("00_setup/doctor.txt", "00_setup/sensor_context.md"):
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge"}')
+            self.assertIn("make parking FILE=", status(base))
+            for relative in ("parking/annotations.xml", "parking/observations.md"):
+                path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
             self.assertEqual(status(base), "make cvat SLICE=C0")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","current_slice":"C0"}')
             self.assertTrue(status(base).startswith("make lock ROUND=calib"))
@@ -55,6 +58,9 @@ class WorkflowTest(unittest.TestCase):
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","current_slice":"B1-edge"}')
             (sub / "r1_craft").mkdir()
             (sub / "r1_craft/selfqc.md").write_text("TODO")
+            self.assertIn("make draft FILE=", status(base))
+            (base / "exports").mkdir()
+            (base / "exports/r1-draft.xml").write_text("draft")
             self.assertEqual(status(base), "make fill ROUND=r1_craft")
             (sub / "r1_craft/selfqc.md").write_text("## Fill ratio (K12)\ndone")
             self.assertEqual(status(base), "make selfqc ROUND=r1_craft")
@@ -68,14 +74,19 @@ class WorkflowTest(unittest.TestCase):
             names = ("00_setup/doctor.txt", "00_setup/sensor_context.md", "p1_calib/lock.txt",
                      "p1_calib/reference.txt", "p1_calib/compare.md", "r1_craft/selfqc.md",
                      "r1_craft/lock.txt", "r2_qa/qa_review.md", "r1_craft/reference.txt",
-                     "r1_craft/compare.md", "r3_diag/cvat_quality.md", "r3_diag/model_compare.md",
+                     "r1_craft/compare.md", "r3_diag/local_quality.md", "r3_diag/local_quality.json",
+                     "r3_diag/local_quality_conflicts.csv", "r3_diag/local_quality_confusion.csv",
+                     "r3_diag/model_compare.md",
                      "r3_diag/iou_sweep.md", "r3_diag/zone_table.md", "rework/lock2.txt",
                      "rework/delta.md", "findings.csv", "10_error_card.md", "20_guideline_patch.md",
                      "30_escalation_ticket.md", "40_decision_log.csv", "45_review_plan.md",
-                     "50_exit_ticket.md", "reflection.md")
+                     "45_sampling_plan.csv", "46_gold_set_plan.md", "50_exit_ticket.md", "reflection.md",
+                     "parking/annotations.xml", "parking/observations.md")
             for relative in names:
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
             (sub / "00_setup/mode.json").write_text('{"slice":"B1-edge","current_slice":"B1-edge"}')
+            (sub / "r1_craft/lock.txt").write_text("sha256: abc\n")
+            (sub / "r3_diag/local_quality.json").write_text('{"locked_sha256":"abc"}')
             checklist = "# Tự soát\n## Checklist thủ công\n" + "\n".join("- [x] item" for _ in range(9))
             (sub / "r1_craft/selfqc.md").write_text(checklist + "\nFill ratio (K12)\ndone")
             (sub / "screenshots").mkdir(); (sub / "screenshots/a.png").write_bytes(b"x")
@@ -88,6 +99,10 @@ class WorkflowTest(unittest.TestCase):
             (sub / "20_guideline_patch.md").write_text("TODO")
             self.assertEqual(status(base), "Điền submission/20_guideline_patch.md")
             (sub / "20_guideline_patch.md").write_text("done")
+            self.assertEqual(status(base), "make check")
+            (sub / "r3_diag/local_quality.md").unlink()
+            self.assertEqual(status(base), "make local-quality")
+            (sub / "r3_diag/local_quality.md").write_text("complete\n")
             self.assertEqual(status(base), "make check")
 
     def test_qa_keeps_reviewed_xml_for_zone_resolution(self):

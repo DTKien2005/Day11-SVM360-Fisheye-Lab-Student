@@ -41,6 +41,12 @@ ra từ nó. Điều khoản gốc tại trang chủ của từng nguồn mới 
 - **Điều khoản:** Valeo ToU cho phép giảng dạy, cấm thương mại, cấm vận hành xe, không cho phát lại. Không có pixel
   WoodScape trong repo pilot hay Student.
 
+## Ảnh bãi đỗ Wikimedia Commons
+
+- `learner/assets/parking/parking-lot-core.jpg`: [Parkinglot empty](https://commons.wikimedia.org/wiki/File:Parkinglot_empty.jpg), Öljylautta, tác giả công bố public domain; bản xem trước 960 px.
+- `learner/assets/parking/parking-lot-contrast.png`: [Apartment Complex Parking Lot 1](https://commons.wikimedia.org/wiki/File:Apartment_Complex_Parking_Lot_1.png), TylerMascola, CC0 1.0; bản xem trước 960 px.
+- Hai ảnh là mẫu luyện nhãn vạch trên ảnh bãi đỗ camera thường, không phải ảnh SVM hoặc ground truth fisheye.
+
 ## Không có trong repo này
 
 - Không có script chấm, không có trọng số rubric — thuộc autograder riêng của chương trình.

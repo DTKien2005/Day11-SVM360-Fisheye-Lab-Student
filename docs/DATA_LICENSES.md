@@ -35,3 +35,13 @@ Singh O., Biswas A., Paul R., ADASIND dataset, Zenodo, 2023, doi:10.5281/zenodo.
 
 Danh sách box/polygon còn biết là chưa hoàn hảo trong teaching reference tại thời điểm phát lớp, ghi theo dạng
 `frame, mô tả ngắn`. Không xoá mục cũ khi thêm mục mới — chỉ nối thêm dòng và ngày.
+
+Chưa có danh sách vấn đề đã được xác nhận trong mục này. Điều đó **không** chứng minh teaching reference không có
+lỗi; Lab Coach vẫn phải soát hàng đợi audit và ghi mọi ca còn mở trước khi dùng làm ví dụ trên lớp.
+
+## Ảnh thực hành vạch ô đỗ
+
+- `assets/parking/parking-lot-core.jpg`: ảnh xem trước 960×720 của [Parkinglot empty](https://commons.wikimedia.org/wiki/File:Parkinglot_empty.jpg), tác giả **Öljylautta**, tự công bố public domain. Bản trong repo được lấy từ thumbnail do Wikimedia Commons cung cấp; không sửa nội dung ảnh. Trang nguồn ghi ảnh gốc 4000×3000.
+- `assets/parking/parking-lot-contrast.png`: ảnh xem trước 960×640 của [Apartment Complex Parking Lot 1](https://commons.wikimedia.org/wiki/File:Apartment_Complex_Parking_Lot_1.png), tác giả **TylerMascola**, **CC0 1.0**. Bản trong repo được lấy từ thumbnail do Wikimedia Commons cung cấp; không sửa nội dung ảnh. Trang nguồn ghi ảnh gốc 6000×4000.
+
+Hai ảnh chỉ dùng cho bài nhận diện vạch trên ảnh bãi đỗ camera thường. Chúng không có nhãn chuẩn, thông số camera SVM, calibration hoặc thông tin độ sâu; kết quả vẽ là bằng chứng thực hành được người soát kiểm bằng mắt, không phải ground truth của một dataset tự lái.

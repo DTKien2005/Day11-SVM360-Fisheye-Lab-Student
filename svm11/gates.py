@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 
 from . import LabError
-from .common import circles, read_json, write_json
+from .common import circles, read_json, slices, write_json
 from .findings import read_rows, validate_rows
 from .locking import lock_values
 from .report import scoped
@@ -121,17 +121,20 @@ def check(base):
     failures += row_errors[:8]
     if len(row_errors) > 8:
         failures.append("… còn %d lỗi dòng findings nữa (sửa các dòng trên rồi chạy lại)" % (len(row_errors) - 8))
-    minimum = 8 if "findings" in mode.get("degrade", []) else 12
+    reduced_findings = "findings" in mode.get("degrade", [])
+    minimum = 8 if reduced_findings else 12
     if len(rows) < minimum:
         failures.append("findings cần ≥%d dòng (hiện %d)" % (minimum, len(rows)))
     cells = {r.get("cell") for r in rows} - {"na", ""}
     if len(cells) < 4:
         failures.append("findings cần ≥4 cell khác na")
-    if sum(r.get("cell") in MODEL_CELLS for r in rows) < 8:
-        failures.append("findings cần ≥8 dòng có M trong cell")
+    model_minimum = 5 if reduced_findings else 8
+    if sum(r.get("cell") in MODEL_CELLS for r in rows) < model_minimum:
+        failures.append("findings cần ≥%d dòng có M trong cell" % model_minimum)
     for round_name in ("r1_craft", "r2_qa", "r3_diag"):
-        if sum(r.get("round") == round_name for r in rows) < 3:
-            failures.append("findings cần ≥3 dòng vai " + round_name)
+        role_minimum = 2 if reduced_findings else 3
+        if sum(r.get("round") == round_name for r in rows) < role_minimum:
+            failures.append("findings cần ≥%d dòng vai %s" % (role_minimum, round_name))
     docs = {}
     try:
         frame_circles = circles(base)
@@ -150,21 +153,38 @@ def check(base):
     if len(decisions) < 4 or not any((row.get("status") or "").strip().lower() == "escalated"
                                      for row in decisions):
         failures.append("decision log cần ≥4 entry và ≥1 escalated")
+    sampling = sub / "45_sampling_plan.csv"
+    try:
+        with sampling.open(encoding="utf-8-sig", newline="") as stream:
+            allocations = list(csv.DictReader(stream))
+        expected = {(camera, kind) for camera in ("front", "rear", "left", "right")
+                    for kind in ("normal", "hard")}
+        observed = {((row.get("camera_id") or "").strip(), (row.get("slice_type") or "").strip())
+                    for row in allocations}
+        total = sum(int((row.get("frames") or "").strip()) for row in allocations)
+        if len(allocations) != 8 or observed != expected or total != 200 or any(
+                int((row.get("frames") or "").strip()) <= 0 or not (row.get("risk") or "").strip() or
+                not (row.get("rationale") or "").strip() for row in allocations):
+            failures.append("45_sampling_plan.csv cần 4 camera × normal/hard, số dương, tổng 200 và lý do")
+    except (OSError, ValueError, KeyError):
+        failures.append("45_sampling_plan.csv chưa phải bảng phân bổ hợp lệ")
     required = [
         "00_setup/doctor.txt", "00_setup/mode.json", "00_setup/sensor_context.md",
+        "parking/annotations.xml", "parking/observations.md",
         "p1_calib/annotations.xml", "p1_calib/lock.txt", "p1_calib/reference.txt",
         "p1_calib/compare.md", "p1_calib/compare.html",
         "r1_craft/annotations.xml", "r1_craft/lock.txt", "r1_craft/selfqc.md",
         "r1_craft/reference.txt", "r1_craft/compare.md", "r1_craft/compare.html",
         "r2_qa/qa_review.md", "r2_qa/qa_overlay.html",
-        "r3_diag/cvat_quality.md", "r3_diag/model_compare.md", "r3_diag/model_compare.html",
+        "r3_diag/local_quality.md", "r3_diag/local_quality.json", "r3_diag/local_quality_conflicts.csv",
+        "r3_diag/local_quality_confusion.csv",
+        "r3_diag/model_compare.md", "r3_diag/model_compare.html",
         "r3_diag/zone_table.md", "rework/annotations-v2.xml", "rework/lock2.txt",
         "rework/delta.md", "findings.csv", "10_error_card.md", "20_guideline_patch.md",
         "30_escalation_ticket.md", "40_decision_log.csv", "45_review_plan.md",
+        "45_sampling_plan.csv", "46_gold_set_plan.md",
         "50_exit_ticket.md", "reflection.md",
     ]
-    if "cvat_quality" in mode.get("degrade", []):
-        required.remove("r3_diag/cvat_quality.md")  # degraded: make compare stands in for the CVAT report
     manifest = []
     from .common import digest
     for relative in required:
@@ -183,6 +203,35 @@ def check(base):
         if relative.endswith("reference.txt"):
             entry["lock_before_reveal"] = "lock_before_reveal: true" in data.decode("utf-8", "replace")
         manifest.append(entry)
+    doctor_path = sub / "00_setup" / "doctor.txt"
+    if doctor_path.is_file() and any(line.startswith("✗") for line in doctor_path.read_text(encoding="utf-8").splitlines()):
+        failures.append("doctor còn lỗi; chạy make doctor lại sau khi sửa môi trường")
+    quality_path = sub / "r3_diag" / "local_quality.json"
+    if quality_path.is_file():
+        try:
+            report = json.loads(quality_path.read_text(encoding="utf-8"))
+            locked = lock_values(sub / "r1_craft" / "lock.txt")
+            if report.get("locked_sha256") != locked.get("sha256"):
+                failures.append("local_quality cũ so với bản export đã khóa; chạy make local-quality lại")
+        except (OSError, ValueError):
+            failures.append("local_quality.json không hợp lệ; chạy make local-quality lại")
+    parking_path = sub / "parking" / "annotations.xml"
+    if parking_path.is_file():
+        from .parking import validate_export
+        try:
+            validate_export(parking_path.read_bytes())
+        except (LabError, OSError, ValueError) as exc:
+            failures.append("Parking export không hợp lệ: " + str(exc))
+    craft_path = sub / "r1_craft" / "annotations.xml"
+    if craft_path.is_file() and mode.get("slice") and (base / "assets" / "slices.json").is_file():
+        try:
+            frame_list = slices(base)[mode["slice"]]
+            required = set(frame_list[:2] if "frame3" in mode.get("degrade", []) else frame_list)
+            missing = required - set(parse_file(craft_path)["images"])
+            if missing:
+                failures.append("r1_craft thiếu frame bắt buộc: " + ", ".join(sorted(missing)))
+        except (LabError, KeyError, ValueError) as exc:
+            failures.append("Không kiểm được frame r1_craft: " + str(exc))
     delta = sub / "rework" / "delta.md"
     if delta.is_file() and len(re.findall(r"\d+", delta.read_text(encoding="utf-8"))) < 2:
         failures.append("delta.md cần số trước và sau")
