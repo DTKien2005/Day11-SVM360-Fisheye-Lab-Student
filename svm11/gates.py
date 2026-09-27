@@ -47,11 +47,11 @@ def doctor(base):
                 visibility = json.loads(result.stdout).get("visibility")
             except ValueError:
                 visibility = None
-            messages.append("✓ Repo PRIVATE" if visibility == "PRIVATE" else "✗ Repo cần PRIVATE")
+            messages.append("✓ Repo PUBLIC" if visibility == "PUBLIC" else "✗ Repo cần PUBLIC để chấm bài")
         else:
-            messages.append("✗ Không xác nhận được repo PRIVATE")
+            messages.append("✗ Không xác nhận được repo PUBLIC; kiểm tra remote và quyền gh")
     else:
-        messages.append("! Chưa có gh; tự kiểm tra repo PRIVATE")
+        messages.append("! Chưa có gh; tự kiểm tra repo bài nộp là PUBLIC trên GitHub")
     path = base / "submission" / "00_setup" / "doctor.txt"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(messages) + "\n", encoding="utf-8")

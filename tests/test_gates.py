@@ -1,15 +1,39 @@
 import csv
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from svm11.gates import check, _zone_for_row
+from svm11.gates import check, doctor, _zone_for_row
 from svm11.findings import HEADER
 from svm11.common import digest
 
 
 class GatesTest(unittest.TestCase):
+    def test_doctor_requires_public_submission_repo(self):
+        class CvatResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self):
+                return b'{"version":"2.74.1"}'
+
+        for visibility, expected in (("PUBLIC", "✓ Repo PUBLIC"),
+                                     ("PRIVATE", "✗ Repo cần PUBLIC để chấm bài")):
+            with self.subTest(visibility=visibility), tempfile.TemporaryDirectory() as temp:
+                calls = [subprocess.CompletedProcess([], 0, "", ""),
+                         subprocess.CompletedProcess([], 0, json.dumps({"visibility": visibility}), "")]
+                with patch("svm11.gates.urllib.request.urlopen", return_value=CvatResponse()), \
+                     patch("svm11.gates.shutil.which", return_value="/usr/bin/gh"), \
+                     patch("svm11.gates.subprocess.run", side_effect=calls):
+                    messages = doctor(Path(temp))
+                self.assertIn(expected, messages)
+
     def test_bad_review_xml_does_not_crash_zone_gate(self):
         with tempfile.TemporaryDirectory() as temp:
             base = Path(temp)
