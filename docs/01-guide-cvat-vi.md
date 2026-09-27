@@ -77,6 +77,6 @@ Riêng **P2**, export một bản nháp trước: `make draft FILE=<đường d�
 | `đã khoá với file khác` | Ghi lý do vào `40_decision_log.csv`, thêm `RELOCK=1` |
 | `file đã đổi sau khi khoá` | Chạy lại `make lock` với đúng file vừa export |
 | `Chưa khoá … trước khi mở reference` | `make lock` trước, `make reference` sau |
-| Import lỗi / prefill không lên | Mở overlay ở `assets/worked/`, vẽ trắng cả frame 1 (đường lùi) |
+| Import lỗi / prefill không lên | Kiểm task, tên ba ảnh, labels Raw và đúng file `assets/prefill/<slice>.xml`; báo Lab Coach. Nếu cần vẽ trắng từ ảnh gốc, ghi sự cố vào decision log. Không mở worked overlay trước khi xong QA mù P3. |
 
 Kẹt quá 3 phút: gọi Lab Coach.

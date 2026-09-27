@@ -49,5 +49,5 @@ ra từ nó. Điều khoản gốc tại trang chủ của từng nguồn mới 
 
 ## Không có trong repo này
 
-- Không có script chấm, không có trọng số rubric — thuộc autograder riêng của chương trình.
+- Không có script chấm điểm tự động hoặc ngưỡng đạt/trượt. Rubric 100 điểm cho bài Day 11 ở `learner/RUBRIC.md`; `make check` chỉ kiểm cấu trúc.
 - Không có trọng số model (`.pt`, `.onnx`), không có token/`.env`/mật khẩu CVAT.

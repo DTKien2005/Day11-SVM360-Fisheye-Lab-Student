@@ -6,6 +6,14 @@ Tạo một task CVAT trên **ảnh chụp bãi đỗ**, vẽ ít nhất hai `pa
 
 Ảnh lõi là `assets/parking/parking-lot-core.jpg`. Mở thêm `assets/parking/parking-lot-contrast.png` để so: vạch ô đỗ ở tiền cảnh và lối xe chạy trong bãi có vai trò khác nhau. Hai ảnh đã đi kèm repo, không cần tải thêm. Xem nguồn và giấy phép ở `docs/DATA_LICENSES.md`.
 
+![Bãi đỗ lõi với các đoạn sơn chia ô ở tiền cảnh](../assets/parking/parking-lot-core.jpg)
+
+*Ảnh core để gán nhãn: hãy kiểm từng đoạn sơn có thực sự tạo ranh giới ô đỗ không trước khi vẽ.*
+
+![Bãi đỗ đối chiếu có vạch ô tiền cảnh và lối xe chạy ở giữa](../assets/parking/parking-lot-contrast.png)
+
+*Ảnh đối chiếu để đọc vai trò của vạch; không nạp ảnh này vào task core.*
+
 ## Vạch nào là `parking_line`?
 
 `parking_line` là **đoạn sơn nhìn thấy được tạo ranh giới một ô đỗ riêng lẻ**. Chỉ vẽ phần sơn quan sát được; polyline dừng tại chỗ bị che hoặc vạch kết thúc. Nếu một dải sơn dài chỉ dẫn lối xe chạy, là mép đường, mũi tên hoặc vạch qua đường, đừng gọi nó là `parking_line` chỉ vì nó nằm trong bãi. Khi không rõ vạch đang chia ô hay hướng xe chạy, ghi ca đó vào `parking/observations.md` thay vì đoán.
@@ -20,3 +28,5 @@ Tạo một task CVAT trên **ảnh chụp bãi đỗ**, vẽ ít nhất hai `pa
 4. Điền `submission/parking/observations.md`: nêu hai vạch đã chọn, một dấu sơn/biên đã loại, vị trí `free_space`, và lý do. Chụp màn hình nếu một ca khó cần giải thích.
 
 **Xong khi:** export được nhận, ghi chú không còn `TODO`, và bạn có thể chỉ ra trên ảnh vì sao một vạch là ranh ô đỗ còn một vạch khác không phải. Nếu CVAT không nhận ảnh hoặc export, báo Lab Coach; đừng tạo XML rỗng để qua `make check`.
+
+Muốn theo trọn luồng Day 11 mà không mở nhiều file, quay về [README](../README.md) và [GUIDE](../GUIDE.md).

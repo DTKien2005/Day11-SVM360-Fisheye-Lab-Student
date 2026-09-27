@@ -12,7 +12,7 @@ Một nhiệm vụ duy nhất — audit một slice 3 frame — qua ba vai. Mọ
 
 ## Vòng quay (làm nhóm 2–3 người)
 
-Vòng cố định **A → B → C → A**: nhận slice đã khoá của người **kế bên**, không phải người mình chọn. Vai xoay theo
+Trong repo riêng, mỗi học viên chạy cùng `MEMBERS` và đặt `SELF=<tên mình>` ở `make mode`; lệnh in đúng slice của người đó. Vòng cố định **A → B → C → A**: nhận slice đã khoá của người **kế bên**, không phải người mình chọn. Vai xoay theo
 từng pha — mỗi người tự làm cả ba vai trên slice của chính mình (Annotator), rồi soát slice người khác (QA), rồi
 chẩn đoán slice của chính mình (Diagnostician).
 

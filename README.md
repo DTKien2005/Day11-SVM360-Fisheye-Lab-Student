@@ -1,26 +1,136 @@
-# Day 11 · SVM/360 Fisheye Lab — học viên
+# Day 11 — SVM/360 Fisheye Lab
 
-Repo này dựng từ template `Day11-SVM360-Fisheye-Lab-Student`. Dữ liệu và bài nộp **chỉ dùng cho buổi Day 11**, không
-dùng lại cho mục đích khác.
+**Bài chính Day 11 · thực hành trong giờ giảng + 240 phút lab · mỗi học viên nộp một repo private.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
 
-## Bắt đầu
+## Bạn sẽ làm gì và nộp gì?
 
-1. Xác nhận repo của bạn ở chế độ **Private** (GitHub → Settings → repo, mục Danger Zone/Visibility).
-2. `make doctor` — kiểm python3, CVAT Day 2 đang chạy, repo private, không có `.env` bị track.
-3. Mở `docs/00-START-HERE-vi.md` — bản đồ P0–P6, mỗi bước một lệnh.
-4. Không có `make`: dùng `python3 lab11.py <lệnh>` thay `make <lệnh>`.
+Bạn sẽ giải một vòng công việc dữ liệu: phân biệt vạch **chia ô đỗ** với vạch chỉ lối xe chạy trên ảnh bãi đỗ; gán nhãn object trên ảnh fisheye; tự soát trước khi xem reference; review bài khác theo guideline; đọc xung đột giữa người, reference và model; sửa có căn cứ; rồi lập kế hoạch sampling/gold set cho **front, rear, left, right**. Đây là một lab chính chứa các nội dung Day 11, không phải chỉ bài sau giờ giảng.
 
-`make status` luôn in đúng một việc kế tiếp. Kẹt quá 3 phút ở một thao tác: gọi Lab Coach.
+Đầu ra cuối là repo cá nhân private chứa các hiện vật trong `submission/`: export CVAT đã khóa, ảnh chụp minh chứng, báo cáo QA, bảng phát hiện lỗi, quyết định rework, phân bổ **200 frame** và kế hoạch gold set. Chạy `make check` trước khi push. Lệnh kiểm cấu trúc và tính đầy đủ; nhãn và lập luận được đọc theo [rubric 100 điểm](RUBRIC.md), không được máy tự chấm đúng/sai.
 
-## Bài Day 11 và file cần mở
+Ba nguồn ảnh phục vụ ba câu hỏi khác nhau:
 
-- [Hướng dẫn từ đầu đến nộp](docs/00-START-HERE-vi.md) gồm bài ảnh bãi đỗ trong phần giảng và lab CVAT 240 phút.
-- [Ảnh bãi đỗ và luật vạch ô đỗ](docs/11-parking-lines-vi.md): ảnh trong `assets/parking/`; nộp XML và ghi chú ở `submission/parking/`.
-- [Rubric tự đối chiếu](docs/rubric-vi.md): tiêu chí và bằng chứng, chưa có trọng số chính thức.
-- [Notebook Google Colab](notebooks/README.md): trợ giúp lập kế hoạch bốn camera; không bắt buộc, không thay bài nộp.
-- `make local-quality`: sau khi khóa export và mở teaching reference, tính chỉ số rectangle, ma trận nhầm lớp và
-  xung đột offline; không cần CVAT Premium. Đọc giới hạn phép tính trong `docs/05-taxonomy-vi.md`.
-- `submission/45_sampling_plan.csv` và `submission/46_gold_set_plan.md`: **bài lõi** theo tình huống bốn camera giả lập, không phải stretch.
+| Nguồn | Bạn dùng để quyết định gì? | Giới hạn |
+|---|---|---|
+| `assets/parking/parking-lot-core.jpg` và `parking-lot-contrast.png` | Vạch nào chia ô đỗ, vùng trống nào nhìn thấy? | Ảnh camera thường, không có calibration hay ground truth an toàn. |
+| 48 ảnh ADASIND đã làm mờ trong `assets/images/` | Box, attribute và vùng ignore trên **một** camera fisheye. | Không đại diện đủ bốn camera SVM. |
+| Tình huống 50.000 frame trên slide | Thiết kế lấy mẫu 200 frame và kế hoạch tạo gold set cho bốn camera. | Tình huống giả lập; repo không chứa 50.000 frame. |
 
-Sau khi làm, chạy `make check`. Lệnh này kiểm **hình thức và tính đầy đủ**, còn người soát đánh giá chất lượng nhãn
-và lập luận theo rubric.
+![Sơ đồ khái niệm bốn camera quanh xe và vùng chồng tại các góc](assets/diagrams/four-camera-seams.svg)
+
+*Sơ đồ học khái niệm: một vật ở vùng chồng (seam) có thể xuất hiện trên hai ảnh. Chưa có timestamp, calibration và policy output thì không tự ghép hai box hay gán cùng track ID.*
+
+## Nhìn ảnh trước khi gán nhãn
+
+Ảnh lõi ở dưới có các đoạn sơn chia **ô đỗ**. Hãy tìm hai đoạn như vậy để vẽ `parking_line`; không vẽ mọi vạch trắng thành một lớp. Bản ảnh thứ hai giúp so vạch ô đỗ ở tiền cảnh với lối xe chạy trong bãi. Mở [quy tắc và thao tác parking](GUIDE.md#bài-trong-giờ-giảng-vạch-ô-đỗ-và-free-space) trước khi tạo task.
+
+![Bãi đỗ trống có các vạch chia ô ở tiền cảnh](assets/parking/parking-lot-core.jpg)
+
+*Ảnh thực hành chính: vạch chia các ô nằm trên mặt bãi; xe và dải đường xa không phải lý do để gán toàn bộ vạch sơn cùng một nhãn.*
+
+![Bãi đỗ khu nhà có các ô tiền cảnh và lối xe chạy ở giữa](assets/parking/parking-lot-contrast.png)
+
+*Ảnh đối chiếu: vạch ở tiền cảnh chia ô; lối xe chạy giữa hai dãy ô là một vùng khác. Chỉ ảnh lõi được nạp vào task parking của bài bắt buộc.* Nguồn và giấy phép ở [DATA_LICENSES.md](docs/DATA_LICENSES.md).
+
+## Chuẩn bị một lần
+
+1. Trên [repo Student của Day 11](https://github.com/VinUni-AI20k/Day11-SVM360-Fisheye-Lab-Student), chọn **Use this template → Create a new repository** trong tài khoản của bạn; đặt chế độ **Private**. Clone repo cá nhân về máy và mở terminal tại gốc repo (nơi có `Makefile` và `lab11.py`). Không làm trực tiếp trong template chung.
+2. Mở Docker Desktop và bật **CVAT local đã cài từ Day 2**. Trong thư mục CVAT cũ chạy `docker compose start` (nếu không có container thì `docker compose up -d`), rồi mở `http://localhost:8080` bằng tài khoản của bạn. Không cần CVAT Premium.
+3. Trong repo Day 11, chạy `make doctor`. Dòng CVAT cần báo đang chạy; nếu có `✗`, sửa đúng lỗi trước khi chuyển bước. Không có `make` thì dùng `python3 lab11.py doctor`; các lệnh khác đổi tương tự.
+4. Chạy `make mode MEMBERS=ten-cua-ban` nếu solo. Nếu nhóm 2–3 người đổi bài QA, **mỗi người trong repo riêng** chạy cùng danh sách, nhưng khai tên mình: ví dụ Bình chạy `make mode MEMBERS=an,binh,chi SELF=binh`. Lệnh in `Slice của bạn`; dùng đúng slice đó ở P2. Điền [sensor_context.md](submission/00_setup/sensor_context.md) bằng bối cảnh dữ liệu đang dùng và giới hạn một camera. `make status` luôn gợi ý việc tiếp theo.
+
+Đừng ghi mật khẩu, token hoặc `.env` vào repo. Không chạy `docker compose down -v` vì cờ `-v` có thể xóa task và nhãn CVAT local.
+
+## Lộ trình Day 11
+
+Phần ảnh bãi đỗ và bản nháp kế hoạch bốn camera diễn ra **trong phần giảng**. Sau đó là 240 phút P0–P6; mốc dưới đây là ngân sách cần bấm giờ thử, chưa phải kết quả đo với lớp. [GUIDE.md](GUIDE.md) có từng thao tác và dấu hiệu hoàn thành.
+
+| Thời điểm | Bạn làm gì | Bằng chứng cần thấy |
+|---|---|---|
+| Trong phần giảng | Task parking trên ảnh lõi; vẽ `parking_line` và `free_space`; phác thảo 8 ô phân bổ 200 frame | `submission/parking/annotations.xml`, `observations.md`; bản nháp `45_sampling_plan.csv` |
+| 0–20 · P0 | Kiểm CVAT, ghi mode và sensor context | `00_setup/doctor.txt`, `mode.json`, `sensor_context.md` |
+| 20–55 · P1 | Hiệu chuẩn C0, khóa rồi so reference; clinic 6 ca dễ nhầm | `p1_calib/` và ba dòng đầu `findings.csv` |
+| 55–110 · P2 | Gán nhãn slice 3 frame; export nháp, chạy fill/self-QC, sửa rồi export bản cuối và khóa | `r1_craft/annotations.xml`, `selfqc.md`, `lock.txt` |
+| 110–125 | Nghỉ 15 phút | — |
+| 125–155 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
+| 155–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
+| 200–215 · P5 | Rework một số ca P0/P1 có căn cứ, khóa bản mới, ghi số trước/sau | `rework/annotations-v2.xml`, `delta.md` |
+| 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `make check` exit 0, repo private có commit mới |
+
+Nếu bài parking hoặc kế hoạch 200 frame chưa được phác thảo trong giờ giảng, hãy làm chúng trước P1. P6 chỉ dành cho hoàn thiện và kiểm lại; không chờ phút 215 mới bắt đầu hai kế hoạch.
+
+## Đường đi chính: lệnh nào, đọc kết quả nào?
+
+Chạy lệnh trong **repo cá nhân**. `FILE=` có thể là đường dẫn ZIP tải từ CVAT trong Downloads; tên ZIP chỉ là ví dụ, hãy dùng file vừa export thật của bạn.
+
+```bash
+# Phần giảng: dùng task riêng cho ảnh parking.
+make parking
+make parking FILE=/duong-dan/parking-export.zip
+
+# P1: task hiệu chuẩn C0.
+make cvat SLICE=C0
+make lock ROUND=calib FILE=/duong-dan/c0-export.zip
+make reference ROUND=calib
+make compare ROUND=calib
+
+# P2: dùng slice mà make mode/make status đã giao; B1-edge chỉ là ví dụ.
+make cvat SLICE=B1-edge
+make draft FILE=/duong-dan/r1-draft.zip
+make fill
+make selfqc ROUND=r1_craft
+# Sửa trong CVAT, Save và export lần nữa trước khi khóa.
+make lock ROUND=r1_craft FILE=/duong-dan/r1-final.zip
+
+# P3: thay FILE và CODE bằng bản người bạn giao hoặc bản mình vừa khóa.
+make qa SLICE=B1-edge FILE=/duong-dan/peer-export.zip CODE=XXXX-XXXX
+
+# P4–P6: mở reference sau lock, kiểm xung đột rồi hoàn thiện bài.
+make reference ROUND=r1_craft
+make compare ROUND=r1_craft
+make local-quality
+make model
+make iou-sweep IOU=0.3,0.5,0.7
+make triage
+make lock ROUND=rework FILE=/duong-dan/rework-export.zip
+make rework
+make card
+make status
+make check
+```
+
+`make draft` tạo `exports/r1-draft.xml` để `make fill` và `make selfqc` có dữ liệu. Bản nháp **chưa** phải bài nộp; sau khi sửa phải Save, export lần nữa và `make lock`. Mã khóa từ lệnh lock dùng để QA, không tự chế. `make reference` chỉ chạy sau lock để giữ vòng tự soát độc lập. `make local-quality` chạy ngay trên máy, xuất `local_quality.md`, JSON, ma trận nhầm lớp và CSV xung đột; không phụ thuộc trang Quality Control trả phí của CVAT. Chỉ số là độ khớp với **teaching reference** của vài frame, không phải điểm rubric hay chứng nhận gold set.
+
+### Cần nhìn hình nào ở đúng thời điểm?
+
+- **Trước khi vẽ parking:** hai ảnh bãi đỗ phía trên. Chỉ nạp ảnh lõi vào task; ảnh đối chiếu giúp hỏi “vạch này chia ô hay dẫn lối xe?”.
+- **Trước P2:** mở ảnh fisheye gốc trong `assets/images/` để thấy vòng kính, méo rìa và thân xe ego. [GUIDE mục P2](GUIDE.md#p2-gán-nhãn-fisheye-tự-soát-và-khóa-bản-cuối) có ảnh minh họa cùng luật box/ignore.
+- **P1 clinic:** thảo luận [sáu câu hỏi thường nhầm](docs/06-misconceptions-vi.md) sau khi tự chọn đáp án. Chưa mở worked overlay của slice để giữ phần QA mù ở P3.
+- **P4 sau lock và QA mù:** `make worked` mở [6 ca đúng/sai/mơ hồ](assets/worked/index.html). Mở thêm `submission/r1_craft/compare.html` và `submission/r3_diag/model_compare.html` trong trình duyệt; dùng bảng conflict để tìm đúng hình, không chỉ đọc một số accuracy.
+
+## Hiện vật cần nộp và cách đọc rubric
+
+Đừng tạo file rỗng cho đủ danh sách. Tool kiểm `TODO` và cấu trúc; người chấm xem nội dung và ảnh theo [RUBRIC.md](RUBRIC.md).
+
+| Nhóm | File chính trong `submission/` | Điều người đọc cần kiểm |
+|---|---|---|
+| Parking + môi trường | `parking/annotations.xml`, `parking/observations.md`, `00_setup/` | Vạch đã chọn thực sự chia ô; ảnh và CVAT dùng đúng scope. |
+| Fisheye + QA | `p1_calib/`, `r1_craft/`, `r2_qa/`, `rework/` | Export và lock đúng thứ tự; rule box/ignore; review độc lập; delta có số trước/sau. |
+| Chẩn đoán | `r3_diag/`, `findings.csv`, `10_error_card.md` | Đọc TP/FP/FN, xung đột, WHAT/WHY, evidence và action; không suy rủi ro từ vị trí ảnh. |
+| SVM bốn camera | `45_review_plan.md`, `45_sampling_plan.csv`, `46_gold_set_plan.md`, `50_exit_ticket.md` | Tám ô normal/hard cộng 200; ca khó và review riêng mỗi camera; seam/tracking có điều kiện. |
+| Bàn giao | `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`, `reflection.md`, `screenshots/` | Rule và quyết định truy được, ít nhất hai ảnh minh chứng. |
+
+`make check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân private**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
+
+## Khi kẹt, xử lý theo tín hiệu
+
+| Tín hiệu | Kiểm ngay |
+|---|---|
+| `make doctor` báo CVAT chưa chạy | Bật Docker Desktop, trong thư mục CVAT cũ chạy `docker compose start`, rồi `make doctor` lại. |
+| `make fill` hoặc self-QC báo thiếu export | Save trong CVAT → export **CVAT for images 1.1** → `make draft FILE=<ZIP vừa tải>`; đừng dùng file prefill làm export bài mình. |
+| Import prefill không lên | Kiểm task có đúng ba ảnh, đúng tên slice và labels Raw; nạp đúng `assets/prefill/<slice>.xml`. [GUIDE](GUIDE.md) có thứ tự nút. |
+| `make check` báo thiếu frame/file hoặc còn `TODO` | Chạy `make status`, mở đúng file được báo, sửa trên ảnh/CVAT khi cần rồi export lại. |
+| Số local quality thấp | Mở `local_quality_conflicts.csv` và overlay, đối chiếu từng case với rule/reference. Không sửa số báo cáo bằng tay. |
+| Trễ mốc 5 phút | Dùng thứ tự cắt có ghi dấu ở [time-box](docs/08-degrade-vi.md); không bỏ lock, reference, local quality, parking, hai kế hoạch bốn camera hoặc `make check`. |
+
+Quy tắc chi tiết cho ca khó ở [docs/02-rules-vi.md](docs/02-rules-vi.md), [taxonomy và cách ghép](docs/05-taxonomy-vi.md), [bốn camera/BEV](docs/10-svm360-reading-vi.md). Đây là **tài liệu tra cứu** khi quyết định một ca; đường đi làm bài nằm ở README và GUIDE. Nguồn ảnh và giấy phép ở [DATA_LICENSES.md](docs/DATA_LICENSES.md).

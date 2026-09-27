@@ -1,6 +1,6 @@
 # Notebook hỗ trợ Day 11
 
-[day11-svm360-colab.ipynb](day11-svm360-colab.ipynb) là công cụ **tùy chọn** để thử phương án lấy mẫu 200 frame và đề xuất gold set cho tình huống **giả lập** bốn camera. Dữ liệu 50.000 frame trong notebook do bài tập đặt ra; đó không phải thống kê của ADASIND hay bộ ảnh trong repo. Bài gán nhãn chính vẫn làm trong CVAT theo `docs/00-START-HERE-vi.md`.
+[day11-svm360-colab.ipynb](day11-svm360-colab.ipynb) là công cụ **tùy chọn** để thử phương án lấy mẫu 200 frame và đề xuất gold set cho tình huống **giả lập** bốn camera. Dữ liệu 50.000 frame trong notebook do bài tập đặt ra; đó không phải thống kê của ADASIND hay bộ ảnh trong repo. Bài gán nhãn chính vẫn làm trong CVAT theo [README](../README.md) và [GUIDE](../GUIDE.md).
 
 ## Mở trong Google Colab
 

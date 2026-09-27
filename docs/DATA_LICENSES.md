@@ -45,3 +45,7 @@ lỗi; Lab Coach vẫn phải soát hàng đợi audit và ghi mọi ca còn m�
 - `assets/parking/parking-lot-contrast.png`: ảnh xem trước 960×640 của [Apartment Complex Parking Lot 1](https://commons.wikimedia.org/wiki/File:Apartment_Complex_Parking_Lot_1.png), tác giả **TylerMascola**, **CC0 1.0**. Bản trong repo được lấy từ thumbnail do Wikimedia Commons cung cấp; không sửa nội dung ảnh. Trang nguồn ghi ảnh gốc 6000×4000.
 
 Hai ảnh chỉ dùng cho bài nhận diện vạch trên ảnh bãi đỗ camera thường. Chúng không có nhãn chuẩn, thông số camera SVM, calibration hoặc thông tin độ sâu; kết quả vẽ là bằng chứng thực hành được người soát kiểm bằng mắt, không phải ground truth của một dataset tự lái.
+
+## Sơ đồ bốn camera
+
+`assets/diagrams/four-camera-seams.svg` là sơ đồ vector tự dựng cho bài học. Vùng màu và vị trí seam chỉ giải thích câu hỏi phối hợp camera; không biểu diễn góc nhìn, calibration, BEV hay dữ liệu đo từ một xe thật.
