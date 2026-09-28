@@ -13,8 +13,7 @@ dịch vụ CVAT Quality Control trả phí.
 4. **`findings`** — hạ ngưỡng `findings.csv` từ 12 xuống 8 dòng (vẫn phải ≥4 giá trị `cell` khác `na`, ≥5 dòng có
    `M`, và ≥2 dòng mỗi vai `r1_craft`, `r2_qa`, `r3_diag`).
    `python3 lab11.py degrade findings`.
-5. **`zone_table`** — `zone_table.md` còn 3 dòng thay vì đủ. `python3 lab11.py degrade zone_table`.
-6. **`rework`** — rework chỉ còn 1 dòng mức P0. `python3 lab11.py degrade rework`.
+5. **`rework`** — rework chỉ còn 1 dòng mức P0. `python3 lab11.py degrade rework`.
 
 ## Không bao giờ bỏ
 

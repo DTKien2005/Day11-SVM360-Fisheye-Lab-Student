@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 
 from . import LabError
-from .common import circles, read_json, slices, write_json
+from .common import LATE_TEMPLATES, circles, read_json, slices, write_json
 from .findings import read_rows, validate_rows
 from .locking import lock_values
 from .report import scoped
@@ -183,14 +183,21 @@ def check(base):
         "rework/delta.md", "findings.csv", "10_error_card.md", "20_guideline_patch.md",
         "30_escalation_ticket.md", "40_decision_log.csv", "45_review_plan.md",
         "45_sampling_plan.csv", "46_gold_set_plan.md",
-        "50_exit_ticket.md", "reflection.md",
+        "50_exit_ticket.md",
     ]
     manifest = []
     from .common import digest
     for relative in required:
         path = sub / relative
         if not path.is_file():
-            failures.append("Thiếu file " + relative)
+            if relative in LATE_TEMPLATES:
+                failures.append("Thiếu file %s (mẫu tự tạo sau python3 lab11.py reference r1_craft)" % relative)
+            elif relative == "r3_diag/zone_table.md":
+                failures.append("Thiếu file %s (chạy python3 lab11.py model)" % relative)
+            elif relative == "10_error_card.md":
+                failures.append("Thiếu file %s (chạy python3 lab11.py card)" % relative)
+            else:
+                failures.append("Thiếu file " + relative)
             continue
         data = path.read_bytes()
         if not data.strip():

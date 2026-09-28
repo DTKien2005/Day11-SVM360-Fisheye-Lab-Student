@@ -68,7 +68,7 @@ Toàn bộ hoạt động nằm trong 240 phút P0–P6. P0 bắt đầu bằng 
 | 70–125 · P2 | Gán nhãn slice 3 frame; export nháp, chạy fill/self-QC, sửa rồi export bản cuối và khóa | `r1_craft/annotations.xml`, `selfqc.md`, `lock.txt` |
 | 125–140 | Nghỉ 15 phút | — |
 | 140–165 · P3 | Soát bản đã khóa của bạn khác, hoặc cold review nếu solo/không nhận được file | `r2_qa/qa_review.md`, `qa_overlay.html` |
-| 165–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/`, `findings.csv`, `zone_table.md` |
+| 165–200 · P4 | Mở teaching reference, đọc compare/local quality/model; phân loại WHAT/WHY và đề xuất hành động | `r3_diag/` (bảng số `zone_table.md` do `model` tự ghi), `findings.csv` |
 | 200–215 · P5 | Rework một số ca P0/P1 có căn cứ, khóa bản mới, ghi số trước/sau | `rework/annotations-v2.xml`, `delta.md` |
 | 215–240 · P6 | Hoàn thiện rule patch, escalation, decision log, sampling/gold plan, exit ticket; kiểm và push | `submission/` đủ file, `python3 lab11.py check` exit 0, repo Public có commit mới |
 
@@ -125,7 +125,7 @@ python3 lab11.py check
 
 ## Hiện vật cần nộp và cách đọc rubric
 
-Đừng tạo file rỗng cho đủ danh sách. Tool kiểm `TODO` và cấu trúc; người chấm xem nội dung và ảnh theo [RUBRIC.md](RUBRIC.md).
+Đừng tạo file rỗng cho đủ danh sách. Repo mới clone chỉ có các mẫu của P0–P3; bốn mẫu P4–P6 (`20_guideline_patch.md`, `30_escalation_ticket.md`, `45_review_plan.md`, `50_exit_ticket.md`) tự xuất hiện sau `python3 lab11.py reference r1_craft`. Bảng số trong `r3_diag/zone_table.md` và `10_error_card.md` do `model` và `card` tính; bạn chỉ viết phần nhận xét, chạy lại lệnh không xóa phần đó. Tool kiểm `TODO` và cấu trúc; người chấm xem nội dung và ảnh theo [RUBRIC.md](RUBRIC.md).
 
 | Nhóm | File chính trong `submission/` | Điều người đọc cần kiểm |
 |---|---|---|
@@ -133,7 +133,7 @@ python3 lab11.py check
 | Fisheye + QA | `p1_calib/`, `r1_craft/`, `r2_qa/`, `rework/` | Export và lock đúng thứ tự; rule box/ignore; review độc lập; delta có số trước/sau. |
 | Chẩn đoán | `r3_diag/`, `findings.csv`, `10_error_card.md` | Đọc TP/FP/FN, xung đột, WHAT/WHY, evidence và action; không suy rủi ro từ vị trí ảnh. |
 | SVM bốn camera | `45_review_plan.md`, `45_sampling_plan.csv`, `46_gold_set_plan.md`, `50_exit_ticket.md` | Tám ô normal/hard cộng 200; ca khó và review riêng mỗi camera; seam/tracking có điều kiện. |
-| Bàn giao | `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`, `reflection.md`, `screenshots/` | Rule và quyết định truy được, ít nhất hai ảnh minh chứng. |
+| Bàn giao | `20_guideline_patch.md`, `30_escalation_ticket.md`, `40_decision_log.csv`, `screenshots/` | Rule và quyết định truy được, ít nhất hai ảnh minh chứng. |
 
 `python3 lab11.py check` ghi lỗi cụ thể và `submission/manifest.json`. Sau khi exit 0, commit và push **repo cá nhân Public**. Mở GitHub kiểm những file nộp đã xuất hiện; gửi link repo theo kênh nộp bài được công bố trong lớp. Notebook [Google Colab](notebooks/day11-svm360-colab.ipynb) chỉ giúp thử phân bổ; không thay CSV, XML hay kế hoạch viết tay.
 

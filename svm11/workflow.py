@@ -7,12 +7,12 @@ import shutil
 import webbrowser
 
 from . import LabError
-from .common import chosen_slice, code, digest, read_json, slices, write_json
+from .common import chosen_slice, code, digest, ensure_late_templates, read_json, slices, write_json
 from .cvat_xml import parse_bytes, xml_bytes
 from .locking import lock_values
 from .report import _html, _overlay, scoped
 
-DEGRADE_STEPS = {"stretch", "k12", "frame3", "findings", "zone_table", "rework"}
+DEGRADE_STEPS = {"stretch", "k12", "frame3", "findings", "rework"}
 
 
 def mode(base, members, self_name=None):
@@ -122,6 +122,7 @@ def qa(base, slice_id, source, verification_code):
 
 def status(base):
     sub = base / "submission"
+    ensure_late_templates(base)
     def complete(relative):
         path = sub / relative
         return path.is_file() and path.stat().st_size > 0 and "TODO" not in path.read_text(encoding="utf-8", errors="replace")
@@ -185,6 +186,8 @@ def status(base):
         return "python3 lab11.py model"
     if not complete("r3_diag/iou_sweep.md"):
         return "python3 lab11.py iou-sweep --iou 0.3,0.5,0.7"
+    if not (sub / "r3_diag" / "zone_table.md").is_file():
+        return "python3 lab11.py model"
     for relative in ("findings.csv", "r3_diag/zone_table.md"):
         if not complete(relative):
             return "Điền submission/" + relative
@@ -194,13 +197,14 @@ def status(base):
         return "python3 lab11.py rework"
     card_path = sub / "10_error_card.md"
     card_text = card_path.read_text(encoding="utf-8", errors="replace") if card_path.is_file() else ""
-    if "# Error analysis card" not in card_text:
+    # a hand-written card with no TODO is left alone by `card`, so only ask for it when `card` would act
+    if "# Error analysis card" not in card_text and (not card_text.strip() or "TODO" in card_text):
         return "python3 lab11.py card"
     if not complete("10_error_card.md"):
         return "Điền submission/10_error_card.md"
     for relative in ("20_guideline_patch.md", "30_escalation_ticket.md", "40_decision_log.csv",
                      "45_review_plan.md", "45_sampling_plan.csv", "46_gold_set_plan.md",
-                     "50_exit_ticket.md", "reflection.md"):
+                     "50_exit_ticket.md"):
         if not complete(relative):
             return "Điền submission/" + relative
     screenshots = [path for path in (sub / "screenshots").glob("*") if path.is_file() and not path.name.startswith(".")]

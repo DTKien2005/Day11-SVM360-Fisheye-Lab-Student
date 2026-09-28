@@ -21,6 +21,32 @@ class SynthesisTest(unittest.TestCase):
             card(base)
             self.assertEqual(path.read_text(), "Human analysis\n")
 
+    def test_card_rerun_refreshes_tables_and_keeps_partial_analysis(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            (base / "submission").mkdir()
+            path = card(base)
+            path.write_text(path.read_text().replace("TODO", "E1 box lỏng ở rìa", 1))
+            append_rows(base / "submission/findings.csv", [
+                {"round": "r3_diag", "slice": "B1-edge", "frame": "f.jpg", "object_ref": "M1",
+                 "cell": "M_only", "what": "SPURIOUS"}])
+            text = card(base).read_text()
+            self.assertIn("E1 box lỏng ở rìa", text)
+            self.assertIn("SPURIOUS: 1", text)
+            self.assertEqual(text.count("## Phân tích của bạn"), 1)
+
+    def test_card_rerun_keeps_text_when_heading_removed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            (base / "submission").mkdir()
+            path = card(base)
+            path.write_text(path.read_text().replace("## Phân tích của bạn", "## Ghi chú của em")
+                            .replace("TODO", "E1 box lỏng ở rìa", 1))
+            text = card(base).read_text()
+            self.assertIn("E1 box lỏng ở rìa", text)
+            self.assertEqual(text.count("## Phân tích của bạn"), 1)
+            self.assertEqual(card(base).read_text().count("E1 box lỏng ở rìa"), 1)
+
     def test_card_counts_what_by_zone_and_block_from_correct_document(self):
         with tempfile.TemporaryDirectory() as temp:
             base = Path(temp)

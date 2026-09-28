@@ -101,7 +101,7 @@ class GatesTest(unittest.TestCase):
                         "r3_diag/model_compare.md", "r3_diag/model_compare.html",
                         "r3_diag/zone_table.md", "rework/lock2.txt", "rework/delta.md",
                         "10_error_card.md", "20_guideline_patch.md", "30_escalation_ticket.md",
-                        "45_review_plan.md", "50_exit_ticket.md", "reflection.md"]
+                        "45_review_plan.md", "50_exit_ticket.md"]
             for relative in required:
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("before 2 after 3\n" if relative.endswith("delta.md") else "complete\n")

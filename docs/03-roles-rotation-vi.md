@@ -8,7 +8,7 @@ Một nhiệm vụ duy nhất — audit một slice 3 frame — qua ba vai. Mọ
 |---|---|---|
 | **Annotator** (P2) | Gán nhãn slice của mình: box, `ego_body`, attribute, polygon K12 | `python3 lab11.py lock r1_craft <zip>` xong |
 | **QA reviewer** (P3) | Soát nhãn đã khoá của người khác **chỉ bằng luật**, chưa biết reference | `python3 lab11.py qa ...` ra `qa_review.md` |
-| **Diagnostician** (P4) | Mở reference + quality report + model, phân loại mọi khác biệt theo WHAT × WHY × owner | `zone_table.md` + `findings.csv` ≥12 dòng |
+| **Diagnostician** (P4) | Mở reference + quality report + model, phân loại mọi khác biệt theo WHAT × WHY × owner | Nhận xét trong `zone_table.md` + `findings.csv` ≥12 dòng |
 
 ## Vòng quay (làm nhóm 2–3 người)
 

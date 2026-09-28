@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from . import LabError
-from .common import root
+from .common import ensure_late_templates, root
 from .gates import check, doctor, triage
 from .locking import lock_export, reveal_reference
 from .local_quality import local_quality
@@ -43,6 +43,20 @@ def parser():
 def run(argv=None, base=None):
     args = parser().parse_args(argv)
     base = root(base)
+    announce_templates(base)
+    try:
+        return dispatch(args, base)
+    finally:
+        announce_templates(base)
+
+
+def announce_templates(base):
+    created = ensure_late_templates(base)
+    if created:
+        print("Đã tạo mẫu cho P4–P6: " + ", ".join("submission/" + name for name in created))
+
+
+def dispatch(args, base):
     command = args.command
     if command == "doctor":
         messages = doctor(base)

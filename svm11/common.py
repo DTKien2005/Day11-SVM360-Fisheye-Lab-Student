@@ -65,3 +65,35 @@ def circles(base):
     with path.open(encoding="utf-8-sig", newline="") as stream:
         return {row["file"]: (float(row["cx"]), float(row["cy"]), float(row["r"]))
                 for row in csv.DictReader(stream)}
+
+
+def learner_section(previous, heading, template):
+    """Return the learner-owned tail of a generated file so a rerun never drops prose.
+
+    The tail starts at `heading`; if the learner removed that heading, the whole old text is kept
+    below a fresh template instead of being overwritten.
+    """
+    if heading in previous:
+        return previous[previous.index(heading):]
+    if not previous.strip():
+        return template
+    return template + ("\n## Bản cũ\n\nLệnh không thấy tiêu đề `%s` nên giữ nguyên bản cũ dưới đây. "
+                       "Chuyển phần bạn viết lên mục trên rồi xoá mục này.\n\n%s" % (heading.lstrip("# "), previous))
+
+
+# Written only after the teaching reference of r1_craft is revealed, so the repo starts with P0–P3 files only.
+LATE_TEMPLATES = ("20_guideline_patch.md", "30_escalation_ticket.md", "45_review_plan.md", "50_exit_ticket.md")
+
+
+def ensure_late_templates(base):
+    """Copy P4–P6 templates into submission/ once r1_craft reference is open; never overwrite."""
+    sub = base / "submission"
+    if not (sub / "r1_craft" / "reference.txt").is_file():
+        return []
+    created = []
+    for name in LATE_TEMPLATES:
+        source, target = base / "assets" / "templates" / name, sub / name
+        if source.is_file() and not target.exists():
+            target.write_bytes(source.read_bytes())
+            created.append(name)
+    return created

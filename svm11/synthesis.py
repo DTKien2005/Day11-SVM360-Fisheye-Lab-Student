@@ -1,7 +1,7 @@
 """Rework delta and error-analysis card."""
 from collections import Counter
 
-from .common import circles, slices
+from .common import circles, learner_section, slices
 from .cvat_xml import parse_file, polygons
 from .findings import read_rows
 from .gates import _zone_for_row
@@ -85,9 +85,18 @@ def rework(base):
     return path
 
 
+CARD_ANALYSIS = ("## Phân tích của bạn\n\n"
+                 "Hai bảng trên do `python3 lab11.py card` tính từ `findings.csv`; chạy lại lệnh sẽ cập nhật bảng và "
+                 "giữ nguyên mục này. Viết cho lỗi nổi bật nhất, dẫn frame/`object_ref`.\n\n"
+                 "- Nguyên nhân khả dĩ (`why`) và vì sao bạn nghĩ vậy: TODO\n"
+                 "- Cách sửa và ai nhận việc (`owner`): TODO\n"
+                 "- Bằng chứng (ảnh trong `screenshots/`, dòng findings, rule): TODO\n")
+
+
 def card(base):
     path = base / "submission" / "10_error_card.md"
-    if path.is_file() and "TODO" not in path.read_text(encoding="utf-8"):
+    previous = path.read_text(encoding="utf-8") if path.is_file() else ""
+    if previous and "TODO" not in previous:
         return path
     rows = read_rows(base / "submission" / "findings.csv")
     counts = Counter(row.get("what") for row in rows if row.get("what"))
@@ -109,7 +118,7 @@ def card(base):
     for what, count in counts.most_common(3):
         frame = next((row.get("frame", "") for row in rows if row.get("what") == what), "")
         lines.append("- %s: %d (ví dụ frame %s)" % (what, count, frame))
-    lines += ["", "Probable cause: TODO", "Fix: TODO", "Evidence: TODO"]
+    analysis = learner_section(previous, "## Phân tích của bạn", CARD_ANALYSIS)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n\n" + analysis, encoding="utf-8")
     return path

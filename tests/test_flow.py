@@ -43,4 +43,13 @@ class FlowTest(unittest.TestCase):
             self.assertIn('data-status="MISSING"', markup)
             self.assertIn('stroke="#ef4444"', markup)
             self.assertEqual(model(base)["edge"]["R_only"], 1)
+            table = base / "submission/r3_diag/zone_table.md"
+            self.assertIn("| edge | 1 | 1 | 0 | 1 | 0 | MISSING (1) |", table.read_text())
+            table.write_text(table.read_text().replace("TODO", "Edge gãy vì méo", 1))
+            model(base)
+            self.assertIn("Edge gãy vì méo", table.read_text())
+            table.write_text(table.read_text().replace("## Nhận xét", "## Em nhận xét"))
+            model(base)
+            self.assertIn("Edge gãy vì méo", table.read_text())
+            self.assertIn("## Bản cũ", table.read_text())
             self.assertIn("0.50", iou_sweep(base, [.3, .5, .7]))

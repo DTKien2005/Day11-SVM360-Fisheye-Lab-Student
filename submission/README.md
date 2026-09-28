@@ -21,8 +21,8 @@
 | `r3_diag/` | Lưu local quality, model comparison, conflict và zone table. |
 | `rework/` | Lưu export sau sửa, mã khóa mới và delta trước/sau. |
 | `screenshots/` | Thêm ít nhất hai ảnh minh chứng cho finding hoặc escalation. |
-| File ở gốc thư mục | Điền findings, decision log, error card, reflection, sampling/review plan, gold-set plan và exit ticket. |
+| File ở gốc thư mục | Lúc đầu: findings, decision log, sampling plan và gold-set plan. Sau `python3 lab11.py reference r1_craft` có thêm guideline patch, escalation ticket, review plan và exit ticket; `python3 lab11.py card` tạo error card. |
 
-Một số file/chỗ trống chỉ xuất hiện sau khi bạn chạy lệnh tương ứng. Ví dụ, `r1_craft/annotations.xml` chỉ có sau khi bạn export CVAT và khóa `r1_craft`. Điều đó bình thường; đừng tạo file rỗng để cho đủ danh sách.
+Một số file/chỗ trống chỉ xuất hiện sau khi bạn chạy lệnh tương ứng; bảng số trong `zone_table.md` và error card do lệnh tính, bạn chỉ viết phần nhận xét. Ví dụ, `r1_craft/annotations.xml` chỉ có sau khi bạn export CVAT và khóa `r1_craft`. Điều đó bình thường; đừng tạo file rỗng để cho đủ danh sách.
 
 `python3 lab11.py check` chỉ kiểm cấu trúc và độ đầy đủ. Người chấm đọc nhãn, ảnh và lập luận theo [rubric 100 điểm](../RUBRIC.md).

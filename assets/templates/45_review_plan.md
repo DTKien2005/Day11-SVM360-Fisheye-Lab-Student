@@ -12,8 +12,5 @@ Giới hạn của kết luận từ ba frame ADASIND: TODO
 
 ## Chuyển sang kế hoạch bốn camera giả lập
 
-Từ hai lát cắt trên, tôi sẽ kiểm giả thuyết nào trước khi chọn frame thật cho từng camera: TODO
-
-Cách tránh nhiều frame liền nhau trong cùng một cảnh bị tính như nhiều ca độc lập: TODO
-
-Vì sao kế hoạch 200 frame ở `45_sampling_plan.csv` chỉ giúp tìm ca cần soi, chưa đo được tỷ lệ lỗi/độ phủ: TODO
+Cách soát độ phủ của 200 frame ở `45_sampling_plan.csv` (kể cả tránh đếm nhiều frame liền nhau trong cùng cảnh
+như nhiều ca độc lập), và vì sao kế hoạch đó chỉ giúp tìm ca cần soi, chưa đo được tỷ lệ lỗi: TODO

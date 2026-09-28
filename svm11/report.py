@@ -4,7 +4,7 @@ from html import escape
 from pathlib import Path
 
 from . import LabError
-from .common import circles, round_dir, slices
+from .common import circles, learner_section, round_dir, slices
 from .cvat_xml import boxes, parse_file, polygons
 from .findings import append_rows
 from .locking import intact_lock
@@ -168,13 +168,24 @@ def model(base):
     frame_names = slices(base)[slice_id]
     circle_map = circles(base)
     counts = {z: Counter() for z in ZONES}
+    left_counts = {z: Counter() for z in ZONES}
+    left_issues = {z: Counter() for z in ZONES}
     rows, sections, overlays = [], ["# L / R / M", "", "L/R/M là thứ tự box in-scope theo XML của từng frame.", ""], []
     for frame in frame_names:
+        if frame not in circle_map:
+            raise LabError("Thiếu vòng kính trong frames.csv: " + frame)
         ignore_polys = [p["points"] for p in polygons(ref_doc, frame, "ignore_region")]
         left = [v for v in scoped(left_doc, frame) if not ignored(v["box"], ignore_polys)]
         refs = scoped(ref_doc, frame)
         preds = [v for v in scoped(model_doc, frame) if not ignored(v["box"], ignore_polys)]
         groups = group_three(left, refs, preds)
+        size = left_doc["images"].get(frame, ref_doc["images"].get(frame))["size"]
+        for bin_name, result in zone_counts(left, refs, ignore_polys, circle_map[frame]).items():
+            left_counts[bin_name].update(result)
+        for item in classify(scoped(left_doc, frame, preserve_ignored=True), refs, ignore_polys,
+                             circle_map[frame], size):
+            if item["what"] not in ("MATCHED", "IGNORE_SCOPE"):
+                left_issues[item["zone"]][item["what"]] += 1
         sections.append("## " + frame)
         for a, b, c in groups:
             cell = three_way_cell(bool(a), bool(b), bool(c))
@@ -186,7 +197,6 @@ def model(base):
                 what = "MISSING" if cell in ("LR_noM", "RM_noL", "R_only") else "SPURIOUS"
                 rows.append({"round": "r3_diag", "slice": slice_id, "frame": frame,
                              "object_ref": label, "cell": cell, "what": what})
-        size = left_doc["images"].get(frame, ref_doc["images"].get(frame))["size"]
         overlays.append(_overlay(frame, size, {"L": left, "R": refs, "M": preds}, "../../assets/images/" + frame))
     sections += ["", "## Zone × cell"] + _table(counts, CELLS)
     folder = base / "submission" / "r3_diag"
@@ -194,7 +204,34 @@ def model(base):
     (folder / "model_compare.md").write_text("\n".join(sections) + "\n", encoding="utf-8")
     (folder / "model_compare.html").write_text(_html("Model " + slice_id, overlays), encoding="utf-8")
     append_rows(base / "submission" / "findings.csv", rows)
+    write_zone_table(folder / "zone_table.md", left_counts, counts, left_issues)
     return counts
+
+
+ZONE_NOTES = ("## Nhận xét\n\n"
+              "- Zone nào người (L) và model (M) gãy nhiều nhất, dẫn số ở bảng trên: TODO\n"
+              "- Giả thuyết vì sao (méo fisheye, box lỏng, thiếu `ego_body`, ...) và giới hạn của slice ba frame: TODO\n")
+
+
+def write_zone_table(path, left_counts, model_counts, left_issues):
+    """Numbers come from the tool; the learner only writes the notes, which survive a rerun."""
+    lines = ["# Zone table (slice của bạn)", "",
+             "Lệnh `python3 lab11.py model` tự ghi bảng số (cùng cách đếm với `r1_craft/compare.md` và "
+             "`model_compare.md`); chạy lại lệnh sẽ cập nhật bảng và giữ nguyên phần nhận xét. "
+             "Bạn chỉ viết mục Nhận xét.", "",
+             "| Zone | n_ref | L missing | L spurious | M missing (`LR_noM` + `R_only`) | "
+             "M thừa (`LM_noR` + `M_only`) | Lỗi L chính (`what`) |",
+             "|---|---:|---:|---:|---:|---:|---|"]
+    for bin_name in ZONES:
+        left, cells = left_counts[bin_name], model_counts[bin_name]
+        top = left_issues[bin_name].most_common(1)
+        lines.append("| %s | %d | %d | %d | %d | %d | %s |" % (
+            bin_name, left["n_ref"], left["missing"], left["spurious"],
+            cells["LR_noM"] + cells["R_only"], cells["LM_noR"] + cells["M_only"],
+            "%s (%d)" % top[0] if top else "—"))
+    previous = path.read_text(encoding="utf-8") if path.is_file() else ""
+    notes = learner_section(previous, "## Nhận xét", ZONE_NOTES)
+    path.write_text("\n".join(lines) + "\n\n" + notes, encoding="utf-8")
 
 
 def iou_sweep(base, thresholds):
@@ -208,6 +245,8 @@ def iou_sweep(base, thresholds):
         for side, doc in (("L", left_doc), ("M", model_doc)):
             totals = {z: Counter() for z in ZONES}
             for frame in slices(base)[slice_id]:
+                if frame not in circle_map:
+                    raise LabError("Thiếu vòng kính trong frames.csv: " + frame)
                 ignore_polys = [p["points"] for p in polygons(ref_doc, frame, "ignore_region")]
                 result = zone_counts(scoped(doc, frame), scoped(ref_doc, frame), ignore_polys,
                                      circle_map[frame], threshold)

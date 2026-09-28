@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from svm11.common import LATE_TEMPLATES, ensure_late_templates
 from svm11.workflow import mode, degrade, status, qa, cleanup
 from svm11.common import code, digest
 from svm11.cli import parser
@@ -34,6 +35,8 @@ class WorkflowTest(unittest.TestCase):
             with self.assertRaisesRegex(LabError, "--self"):
                 mode(base, "chi,an,binh", self_name="ngoai-nhom")
             degrade(base, "findings")
+            with self.assertRaises(LabError):
+                degrade(base, "zone_table")
             self.assertIn("findings", json.loads((base / "submission/00_setup/mode.json").read_text())["degrade"])
             self.assertIsInstance(status(base), str)
 
@@ -50,6 +53,29 @@ class WorkflowTest(unittest.TestCase):
         for command in commands:
             with self.subTest(command=command):
                 parser().parse_args(shlex.split(command))
+
+    def test_late_templates_appear_after_reference_and_never_overwrite(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            (base / "assets/templates").mkdir(parents=True)
+            for name in LATE_TEMPLATES:
+                (base / "assets/templates" / name).write_text("TODO " + name)
+            (base / "submission/r1_craft").mkdir(parents=True)
+            self.assertEqual(ensure_late_templates(base), [])
+            self.assertFalse((base / "submission/50_exit_ticket.md").exists())
+            (base / "submission/r1_craft/reference.txt").write_text("lock_before_reveal: true\n")
+            (base / "submission/20_guideline_patch.md").write_text("written by learner")
+            created = ensure_late_templates(base)
+            self.assertNotIn("20_guideline_patch.md", created)
+            self.assertEqual((base / "submission/20_guideline_patch.md").read_text(), "written by learner")
+            self.assertEqual((base / "submission/50_exit_ticket.md").read_text(), "TODO 50_exit_ticket.md")
+            self.assertEqual(ensure_late_templates(base), [])
+
+    def test_shipped_late_templates_exist(self):
+        base = Path(__file__).resolve().parent.parent
+        for name in LATE_TEMPLATES:
+            self.assertTrue((base / "assets/templates" / name).is_file(), name)
+            self.assertFalse((base / "submission" / name).exists(), name)
 
     def test_cleanup_requires_learner_root(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -102,7 +128,7 @@ class WorkflowTest(unittest.TestCase):
                      "r3_diag/iou_sweep.md", "r3_diag/zone_table.md", "rework/lock2.txt",
                      "rework/delta.md", "findings.csv", "10_error_card.md", "20_guideline_patch.md",
                      "30_escalation_ticket.md", "40_decision_log.csv", "45_review_plan.md",
-                     "45_sampling_plan.csv", "46_gold_set_plan.md", "50_exit_ticket.md", "reflection.md",
+                     "45_sampling_plan.csv", "46_gold_set_plan.md", "50_exit_ticket.md",
                      "parking/annotations.xml", "parking/observations.md")
             for relative in names:
                 path = sub / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("done")
@@ -113,12 +139,17 @@ class WorkflowTest(unittest.TestCase):
             (sub / "r1_craft/selfqc.md").write_text(checklist + "\nFill ratio (K12)\ndone")
             (sub / "screenshots").mkdir(); (sub / "screenshots/a.png").write_bytes(b"x")
             (sub / "screenshots/b.png").write_bytes(b"x")
+            (sub / "r3_diag/zone_table.md").unlink()
+            self.assertEqual(status(base), "python3 lab11.py model")
+            (sub / "r3_diag/zone_table.md").write_text("done")
             (sub / "10_error_card.md").write_text("# Error card\nTODO")
             self.assertEqual(status(base), "python3 lab11.py card")
             (sub / "10_error_card.md").write_text("# Error analysis card\nTODO")
             self.assertEqual(status(base), "Điền submission/10_error_card.md")
-            (sub / "10_error_card.md").write_text("# Error analysis card\ndone")
+            (sub / "10_error_card.md").write_text("# Error card\nviết tay, không còn chỗ trống")
             (sub / "20_guideline_patch.md").write_text("TODO")
+            self.assertEqual(status(base), "Điền submission/20_guideline_patch.md")
+            (sub / "10_error_card.md").write_text("# Error analysis card\ndone")
             self.assertEqual(status(base), "Điền submission/20_guideline_patch.md")
             (sub / "20_guideline_patch.md").write_text("done")
             self.assertEqual(status(base), "python3 lab11.py check")
