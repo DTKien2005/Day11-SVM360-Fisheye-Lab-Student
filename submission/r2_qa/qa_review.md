@@ -7,7 +7,7 @@ SHA-256: 6997bf13e8daac9ae1cbf02fa422682f9eb3b960cc2812c21d587eaa9293e7f0.
 Thời điểm nhận: 2026-09-29T12:40:15.681741+07:00.
 Slice: B4-center; Nghĩa đã xác nhận chuyển từ bảng phân công cũ B4-edge sang bản B4-center bàn giao.
 Số điểm cần A xử lý theo nhận xét của reviewer: 4 ở ảnh 295948. Các ca chưa rõ ở ảnh 270517 và 271039 được ghi riêng, chưa tính là lỗi xác nhận.
-Trạng thái: đã nhận nhận xét trên cả ba ảnh, còn ca chưa rõ ở 270517/271039 và ảnh minh chứng chưa lưu; chưa phát thông báo “QA đã chốt”. Chưa mở reference/model/compare của slice chính.
+Trạng thái: QA mù vai B đã chốt với 4 finding ở ảnh 295948 và các ca chưa rõ được ghi riêng cho 270517/271039. Ảnh chụp bằng chứng đã lưu. Chưa mở reference/model/compare của slice chính.
 
 ## Tiến độ
 - [x] adasind_270517.jpg — đã nhận nhận xét trực tiếp của Nghĩa
@@ -58,18 +58,18 @@ Nghĩa xác nhận ba trường hợp `occluded=true` và đề nghị loại bo
 | adasind_271039.jpg | L11 Car đỏ | R02 | Mép dưới box có vẻ rộng xuống mặt đường; chưa đo phần dư. | Xem ảnh gốc ở độ phóng lớn, kiểm biên box chỉ ôm phần xe nhìn thấy. | [Ảnh gốc](../../assets/images/adasind_271039.jpg), [overlay QA](qa_overlay.html) |
 | adasind_271039.jpg | phương tiện nhỏ nền trái/trung tâm (chưa có mã L) | R01 | Các box chồng nhau, chưa thấy rõ vật ≥40 px chắc chắn bị bỏ sót. | Kiểm vật độc lập, chiều cao nhìn thấy và vùng hợp lệ trước khi đề nghị bổ sung box. | [Ảnh gốc](../../assets/images/adasind_271039.jpg), [overlay QA](qa_overlay.html) |
 | adasind_271039.jpg | lens_border mép trái và biên dưới | R08, R09 | Nghĩa chưa thấy đủ biên dưới; mép trái chỉ nên phủ vùng tối. | Soát toàn bộ vòng kính trên ảnh gốc để xác nhận không lấn đường hoặc đối tượng. | [Ảnh gốc](../../assets/images/adasind_271039.jpg), [overlay QA](qa_overlay.html) |
-| adasind_295948.jpg | L4 Bike | R05 | Nghĩa xác nhận bị vật tiền cảnh che một phần; custom `occluded=false` không khớp ảnh. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh gốc](../../assets/images/adasind_295948.jpg), [overlay QA](qa_overlay.html) |
-| adasind_295948.jpg | L5 Pedestrian | R05 | Nghĩa xác nhận phần dưới cơ thể bị vật/phương tiện khác che; custom `occluded=false`. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh gốc](../../assets/images/adasind_295948.jpg), [overlay QA](qa_overlay.html) |
-| adasind_295948.jpg | L7 Truck | R05 | Nghĩa xác nhận vật khác che đáng kể; custom `occluded=false`. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh gốc](../../assets/images/adasind_295948.jpg), [overlay QA](qa_overlay.html) |
-| adasind_295948.jpg | XML box #1 Car (không có L do H&lt;40) | R01 | Đối tượng thật nhưng box cao 26.99 px, dưới ngưỡng H=40 của bài. | A kiểm và loại box dưới ngưỡng nếu áp dụng đúng R01; ghi lý do trong rework/decision log. | [Ảnh gốc](../../assets/images/adasind_295948.jpg), [overlay QA](qa_overlay.html) |
+| adasind_295948.jpg | L4 Bike | R05 | Nghĩa xác nhận bị vật tiền cảnh che một phần; custom `occluded=false` không khớp ảnh. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh chụp QA](../screenshots/qa_B_295948_overlay.png), [overlay QA](qa_overlay.html) |
+| adasind_295948.jpg | L5 Pedestrian | R05 | Nghĩa xác nhận phần dưới cơ thể bị vật/phương tiện khác che; custom `occluded=false`. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh chụp QA](../screenshots/qa_B_295948_overlay.png), [overlay QA](qa_overlay.html) |
+| adasind_295948.jpg | L7 Truck | R05 | Nghĩa xác nhận vật khác che đáng kể; custom `occluded=false`. | A kiểm và sửa custom `occluded=true`, soát sự nhất quán với cờ shape gốc. | [Ảnh chụp QA](../screenshots/qa_B_295948_overlay.png), [overlay QA](qa_overlay.html) |
+| adasind_295948.jpg | XML box #1 Car (không có L do H&lt;40) | R01 | Đối tượng thật nhưng box cao 26.99 px, dưới ngưỡng H=40 của bài. | A kiểm và loại box dưới ngưỡng nếu áp dụng đúng R01; ghi lý do trong rework/decision log. | [Ảnh chụp QA](../screenshots/qa_B_295948_overlay.png), [overlay QA](qa_overlay.html) |
 
-Đã nhận nhận xét cho cả ba ảnh. Các ca chưa rõ ở 270517 và 271039 vẫn cần A/B trả lời; chưa chốt báo cáo QA. Bốn điểm A cần xử lý ở 295948 đã có căn cứ để ghi vào `findings.csv` vòng `r2_qa`.
+Đã nhận và chốt nhận xét mù cho cả ba ảnh. Các ca chưa rõ ở 270517 và 271039 vẫn cần A/B trả lời; không được tính thành lỗi đã xác nhận. Bốn điểm A cần xử lý ở 295948 đã ghi vào `findings.csv` vòng `r2_qa`.
 
 ## Ảnh bằng chứng và việc còn mở
 
-- Cần ảnh chụp thật từ overlay QA của frame `adasind_295948.jpg`, hiển thị L4, L5, L7 và XML#1, lưu trong `submission/screenshots/`. Công cụ chụp trình duyệt không được phép truy cập trang `file://` này; không dùng ảnh dựng thay ảnh chụp.
+- [Ảnh chụp QA thật do Nghĩa cung cấp](../screenshots/qa_B_295948_overlay.png) hiển thị L4, L5, L7 và XML#1 trên frame `adasind_295948.jpg`; đã lưu nguyên byte, không dựng lại từ XML.
 - Cần người soát xem lại vật tối phía sau L2 của `270517` và vùng ignore/giá trị `occluded` riêng của L7–L9 trên `271039` nếu muốn chốt các ca chưa rõ. Các ca này được giữ ở trạng thái chưa xác nhận lỗi.
-- Sau khi có ảnh bằng chứng, B gửi bản review và bốn dòng finding cho A/C, ghi rõ các ca chưa rõ; A phản hồi/sửa trên bản riêng, B kiểm lại bản A đã khóa lần sau.
+- B bàn giao bản review và bốn dòng finding cho A/C, ghi rõ các ca chưa rõ; A phản hồi/sửa trên bản riêng, B kiểm lại bản A đã khóa lần sau.
 
 Các dấu hiệu kỹ thuật ở qa_intake.md là dữ liệu kiểm tra XML; chưa thay nhận xét nhìn ảnh của Nghĩa.
 Cột why, severity, owner và action của findings dành cho C theo phân công nhóm.
