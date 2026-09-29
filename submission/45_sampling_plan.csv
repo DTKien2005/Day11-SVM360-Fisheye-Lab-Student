@@ -1,10 +1,9 @@
 camera_id,slice_type,frames,risk,rationale
-front,normal,25,Bị lóa sáng ngược chiều (glare) và rung lắc khi xe tăng tốc,Môi trường giao thông chuẩn phía trước kiểm tra độ nhận diện vật thể di chuyển cùng chiều và ngược chiều ở cự ly trung bình
-front,hard,25,Mật độ phương tiện hỗn hợp dày đặc (xe máy chen lấn xe ba bánh cắt đầu) méo quang học ngoại vi lớn,Đánh giá khả năng tách đối tượng dính liền (occlusion) và độ chính xác box sát mép vòng kính thấu kính
-rear,normal,25,Bụi bẩn bám camera đuôi xe chênh lệch ánh sáng bóng râm khi lùi xe,Quan sát xe bám đuôi đảm bảo phân định ranh giới phương tiện tiếp cận từ phía sau trong điều kiện tiêu chuẩn
-rear,hard,25,Đèn pha xe sau chiếu rọi trực tiếp gây chói lóa ban đêm khoảng cách cực gần làm phình to biến dạng,Kiểm tra giới hạn nhận diện khi xe phía sau áp sát đuôi xe (<1m) và độ chính xác phân loại thiếu sáng
-left,normal,25,Mép gương và thân xe ego che khuất một phần góc nhìn đáy,Theo dõi phương tiện vượt trái và lề đường tiêu chuẩn kiểm chứng tính toàn vẹn của polygon ego_body
-left,hard,25,Rơi vào vùng giáp ranh ghép mí (SVM stitching seam front-left/rear-left) đối tượng bị cắt đôi hoặc méo phối cảnh nặng,Đánh giá lỗi duplicate/split box tại seam và biến dạng phương tiện tạt đầu sát sườn xe
-right,normal,25,Điểm mù sườn xe bên phụ và chướng ngại vật tĩnh (cột mốc dải phân cách sát lề),Theo dõi người đi bộ và xe máy bên phụ trong điều kiện vận hành đô thị thông thường
-right,hard,25,Xe máy vượt phải bất ngờ ở góc siêu rộng vướng seam góc phụ trước/sau và bóng đổ phức tạp,Kiểm thử khả năng phát hiện đối tượng dễ tổn thương (VRU) trong vùng méo cao (>70 độ) và vùng ghép 4 cam
-
+front,normal,30,medium,Phủ ánh sáng và mật độ giao thông thường gặp trước xe; lấy mẫu rải theo thời điểm và cảnh để tránh frame liên tiếp quá giống nhau.
+front,hard,20,high,Ưu tiên vật nhỏ ở xa hoặc sát vòng kính và tình huống chói hoặc che khuất; soát box trên ảnh fisheye gốc.
+rear,normal,25,medium,Phủ cảnh lùi và vật thể thường gặp phía sau với nhiều khoảng cách khác nhau.
+rear,hard,25,high,Ưu tiên vật gần mép khung và vùng thân xe che hoặc hình méo mạnh khi lùi.
+left,normal,20,medium,Phủ mặt bên trong điều kiện rõ và khoảng cách thường gặp.
+left,hard,30,high,Ưu tiên vật ở góc trước và sau trái nơi có seam với camera kề và vật bị cắt ở rìa.
+right,normal,20,medium,Phủ mặt bên trong điều kiện rõ và khoảng cách thường gặp.
+right,hard,30,high,Ưu tiên seam góc trước và sau phải cùng vật bị cắt hoặc che ở sát mép.
