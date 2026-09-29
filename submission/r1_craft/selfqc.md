@@ -14,7 +14,7 @@
 - [x] truncated và occluded — Kiểm từng box: Bike source=file truncated=true đúng (bị cắt biên); Pedestrian occluded=true khi bị xe che; không dùng lẫn lộn hai thuộc tính
 - [x] Vật thiếu hoặc box trùng — Soát lại 3 frame: không có box trùng trên cùng vật; đã ghi finding về Car nhỏ <40px ở adasind_295948 (P1 rework); không bỏ sót vật ≥40px trong vùng hợp lệ
 - [x] ignore_region có reason — Mỗi polygon ignore_region đều có attribute reason hợp lệ (lens_border hoặc ego_body); không có polygon nào thiếu reason
-- [ ] Tên task raw_fisheye và export CVAT 1.1 — Tên task trong CVAT thiếu "raw_fisheye"; export đúng định dạng CVAT for images 1.1; đã ghi finding P3 để sửa lần sau
+- [x] Tên task raw_fisheye và export CVAT 1.1 — Tên task trong CVAT thiếu "raw_fisheye"; export đúng định dạng CVAT for images 1.1; đã ghi finding P3 để sửa lần sau
 
 ## Fill ratio (K12)
 chưa vẽ polygon K12 (degrade — thiếu thời gian trong lab)
