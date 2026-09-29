@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <annotations>
   <version>1.1</version>
   <meta>
@@ -7,13 +7,13 @@
       <size>1</size>
       <mode>annotation</mode>
       <overlap>0</overlap>
-      <bugtracker></bugtracker>
+      <bugtracker />
       <created>2026-09-28 11:15:55.800596+00:00</created>
       <updated>2026-09-29 04:15:52.307768+00:00</updated>
       <subset>default</subset>
       <start_frame>0</start_frame>
       <stop_frame>0</stop_frame>
-      <frame_filter></frame_filter>
+      <frame_filter />
       <segments>
         <segment>
           <id>95</id>
@@ -26,7 +26,7 @@
         <username>tinnt</username>
         <email>26ai.tinnt2@vinuni.edu.vn</email>
       </owner>
-      <assignee></assignee>
+      <assignee />
       <labels>
         <label>
           <name>Bus</name>
@@ -246,17 +246,27 @@ privacy_or_policy</values>
     <box label="ThreeWheeler" source="manual" occluded="0" xtl="36.68" ytl="767.12" xbr="100.00" ybr="850.30" z_order="0">
       <attribute name="occluded">false</attribute>
       <attribute name="truncated">false</attribute>
-      <attribute name="edge_zone">false</attribute>
+      <attribute name="edge_zone">true</attribute>
     </box>
-    <polygon label="ignore_region" source="manual" occluded="0" points="0.00,1050.00;35.00,1070.00;25.00,1120.00;0.00,1160.00;0.00,1220.00;45.00,1280.00;70.00,1370.00;120.00,1500.00;100.50,1547.60;0.00,1444.80" z_order="0">
+    <polygon label="ignore_region" source="manual" occluded="0" points="0.00,1100.00;25.00,1100.00;30.00,1200.00;45.00,1300.00;45.00,1450.00;60.00,1560.00;0.00,1600.00" z_order="0">
       <attribute name="reason">ego_body</attribute>
     </polygon>
-    <box label="Bike" source="manual" occluded="0" xtl="415.39" ytl="732.86" xbr="559.39" ybr="919.86" z_order="0">
+    <box label="Bike" source="manual" occluded="0" xtl="598.23" ytl="744.86" xbr="723.23" ybr="917.86" z_order="0">
       <attribute name="occluded">false</attribute>
       <attribute name="truncated">false</attribute>
       <attribute name="edge_zone">false</attribute>
     </box>
-    <box label="Bike" source="manual" occluded="0" xtl="598.23" ytl="744.86" xbr="723.23" ybr="917.86" z_order="0">
+    <box label="Pedestrian" source="manual" occluded="0" xtl="415.39" ytl="732.86" xbr="470.00" ybr="919.86" z_order="0">
+      <attribute name="occluded">false</attribute>
+      <attribute name="truncated">false</attribute>
+      <attribute name="edge_zone">false</attribute>
+    </box>
+    <box label="Bike" source="manual" occluded="0" xtl="445.00" ytl="758.00" xbr="559.39" ybr="919.86" z_order="0">
+      <attribute name="occluded">false</attribute>
+      <attribute name="truncated">false</attribute>
+      <attribute name="edge_zone">false</attribute>
+    </box>
+    <box label="Bike" source="manual" occluded="0" xtl="888.00" ytl="801.00" xbr="966.00" ybr="895.00" z_order="0">
       <attribute name="occluded">false</attribute>
       <attribute name="truncated">false</attribute>
       <attribute name="edge_zone">false</attribute>
