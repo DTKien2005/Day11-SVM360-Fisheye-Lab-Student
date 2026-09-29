@@ -1,0 +1,19 @@
+{
+  "members": [
+    "kien",
+    "nghia",
+    "tin"
+  ],
+  "assignments": {
+    "kien": "B4-dense",
+    "nghia": "B2-mid",
+    "tin": "B4-edge"
+  },
+  "self": "kien",
+  "slice": "B4-edge",
+  "degrade": [],
+  "current_slice": "C0",
+  "support_prefill": false,
+  "support_slice": "",
+  "prefill_box_ids": []
+}
