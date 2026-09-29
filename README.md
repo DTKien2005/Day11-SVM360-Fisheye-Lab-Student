@@ -1,22 +1,62 @@
 # Day 11 — SVM/360 Fisheye Lab
 
-> ### 🏆 HỒ SƠ NỘP BÀI NHÓM (GROUP SUBMISSION)
-> - **Tên nhóm:** **SVM360-AI-Group**
-> - **Người đại diện nộp bài:** **Đỗ Trung Kiên** — MSSV: `2A202602283` (Vai C - Lead & Diagnostician)
-> - **Repo nhóm chính thức:** [https://github.com/DTKien2005/K4-DAY11-Lab11](https://github.com/DTKien2005/K4-DAY11-Lab11)
-> - **Kết quả Gate Check:** `✓ Hồ sơ hình thức đầy đủ` (0 failed gates trong [submission/manifest.json](submission/manifest.json)).
+> ## 👤 HỒ SƠ NỘP BÀI CÁ NHÂN — VAI C (CHẨN ĐOÁN & ĐIỀU PHỐI)
+> - **Học viên:** **Đỗ Trung Kiên** — MSSV: `2A202602283`
+> - **Lớp:** K4 VinUni (AI20k)
+> - **Vai trò đảm nhiệm:** **Vai C (Diagnostician & Coordinator)**
+> - **Repo cá nhân chính thức:** [https://github.com/DTKien2005/K4-DAY11-Do-Trung-Kien-2A202602283-SVM360-Fisheye](https://github.com/DTKien2005/K4-DAY11-Do-Trung-Kien-2A202602283-SVM360-Fisheye)
+> - **Repo nhóm liên kết:** [https://github.com/DTKien2005/K4-DAY11-Lab11](https://github.com/DTKien2005/K4-DAY11-Lab11)
+> - **Kết quả Gate Check:** `✓ Hồ sơ hình thức đầy đủ` (Exit code 0, 0 failed gates trong [submission/manifest.json](submission/manifest.json)).
 >
-> | Thành viên | MSSV | Vai trò | Slice | Bản nhãn đã khóa | Báo cáo QA Review | Rework & Delta | Exit Ticket | Branch / Repo | Commit chốt |
-> |---|---|---|---|---|---|---|---|---|---|
-> | **Đỗ Trung Kiên** *(Lead)* | 2A202602283 | Vai C (Lead & Diag) | `B4-dense` | [C0 Lock](submission/p1_calib/lock.txt), [Craft Lock](submission/r1_craft/lock.txt) | [QA Review C0](submission/p1_calib/b_review_notes.md), [QA Intake](submission/r2_qa/qa_intake.md) | [Metric & Error Card](submission/10_error_card.md), [Rework v2](submission/rework/lock2.txt) | [50_exit_ticket.md](submission/50_exit_ticket.md) | [main](https://github.com/DTKien2005/K4-DAY11-Lab11/tree/main) | [`9f4b91b`](https://github.com/DTKien2005/K4-DAY11-Lab11/commit/9f4b91b) |
-> | **Nguyễn Trí Tín** | 2A202602275 | Vai A (Annotator) | `B4-center` | [r1_craft Lock](submission/r1_craft/lock.txt) (`6997-BF13`) | [Self-QC 9 mục](submission/r1_craft/selfqc.md) | [Lock2](submission/rework/lock2.txt) (`9313-188F`), [delta.md](submission/rework/delta.md) | [Exit Ticket](submission/50_exit_ticket.md) | [p0-parking-export](https://github.com/DTKien2005/K4-DAY11-Lab11/tree/p0-parking-export) | [`ac57504`](https://github.com/DTKien2005/K4-DAY11-Lab11/commit/ac57504969f37fe41f1f2500c2cb3f3007a0b171) |
-> | **Võ Trọng Nghĩa** | 2A202602072 | Vai B (QA Reviewer) | `B2-mid` | [Parking Lock](submission/parking/annotations.xml) | [qa_review.md](submission/r2_qa/qa_review.md), [qa_overlay.html](submission/r2_qa/qa_overlay.html) | [QA Overlay PNG](submission/screenshots/qa_B_295948_overlay.png) | [Exit Ticket](submission/50_exit_ticket.md) | [nghia-qa-notes](https://github.com/DTKien2005/K4-DAY11-Lab11/tree/nghia-qa-notes) | [`0503c78`](https://github.com/DTKien2005/K4-DAY11-Lab11/commit/0503c786afa0bd493ca25157b62b31382648a3af) |
+> ### 📊 BÁO CÁO TỔNG KẾT ĐÓNG GÓP & BẰNG CHỨNG THỰC HIỆN CỦA VAI C:
+> 
+> 1. **P0 · Môi trường & Bối cảnh cảm biến (Setup & Sensor Context):**
+>    - Thiết lập Docker CVAT local, kiểm tra môi trường với `python3 lab11.py doctor` đạt chuẩn.
+>    - Khởi tạo chế độ làm việc nhóm tại [00_setup/mode.json](submission/00_setup/mode.json) (`self="kien"`).
+>    - Viết báo cáo phân tích bối cảnh cảm biến camera fisheye đơn và thân xe ego tại [00_setup/sensor_context.md](submission/00_setup/sensor_context.md): Phân tích đặc tính méo phi tuyến FOV ~180°–190°, xác định vùng che khuất nắp capo/gương (`ego_body`) ở đáy và vành đen quang học (`lens_border`) để loại bỏ nhiễu biên.
+>    - Hoàn thành task gán nhãn vạch chia ô đỗ xe [parking/annotations.xml](submission/parking/annotations.xml) và biên bản quan sát phân biệt vạch đỗ với làn di chuyển [parking/observations.md](submission/parking/observations.md).
 >
-> **Tóm tắt điều phối & Bàn giao nhóm:**
-> - **Phân công công việc:** Vai A (Tín) thực hiện P0 parking, P1 hiệu chuẩn C0, P2 gán nhãn slice B4-center và P5 rework v2. Vai B (Nghĩa) thực hiện P0/P1 review, P3 blind QA review độc lập và trích xuất bằng chứng ảnh overlay thật. Vai C (Kiên) điều phối dự án, benchmark P4 diagnostic (local quality, model YOLO compare, IoU sweep, taxonomy 10_error_card), P6 governance (patch R10, escalation ticket, review/sampling/gold plan, exit ticket) và chạy kiểm tra manifest tổng thể.
-> - **Giải quyết bất đồng & Thống nhất kỹ thuật:** Đã xử lý triệt để 4 ca bất đồng chính qua [40_decision_log.csv](submission/40_decision_log.csv), trong đó loại bỏ box Car H=26.99px dưới ngưỡng R01, đồng bộ nhãn `Bike` theo R03, và lập [30_escalation_ticket.md](submission/30_escalation_ticket.md) cho ca biên mép khó tại frame 295948.
-> - **Kế hoạch mở rộng:** Thống nhất bảng phân bổ 200 frame cho 4 camera fisheye tại [45_sampling_plan.csv](submission/45_sampling_plan.csv) và tiêu chí gold set đa camera tại [46_gold_set_plan.md](submission/46_gold_set_plan.md).
-> - **Hồ sơ chi tiết & cam kết đóng góp:** Xem chi tiết tại **[TEAMMATES.md](TEAMMATES.md)**.
+> 2. **P1 · Hiệu chuẩn C0 & Rà soát phòng khám nhãn (Clinic):**
+>    - Hoàn thiện nhãn C0 tại [p1_calib/annotations.xml](submission/p1_calib/annotations.xml), khóa mã hash [p1_calib/lock.txt](submission/p1_calib/lock.txt) (`78D7-86D3`).
+>    - Mở teaching reference C0, chạy đối chiếu tự động sinh [p1_calib/compare.md](submission/p1_calib/compare.md) và [p1_calib/compare.html](submission/p1_calib/compare.html).
+>    - Ghi nhận 3 ca lỗi hiệu chuẩn đầu tiên vào [findings.csv](submission/findings.csv) (Bike đỗ, ThreeWheeler bị che khuất).
+>
+> 3. **P2 & P3 · Giám sát Craft & Mở Teaching Reference:**
+>    - Giám sát bản nhãn ban đầu [r1_craft/lock.txt](submission/r1_craft/lock.txt) (`6997-BF13`) và bảng tự kiểm 9 mục [r1_craft/selfqc.md](submission/r1_craft/selfqc.md).
+>    - Tiếp nhận báo cáo QA mù từ Vai B ([r2_qa/qa_review.md](submission/r2_qa/qa_review.md), [r2_qa/qa_intake.md](submission/r2_qa/qa_intake.md), ảnh [screenshots/qa_B_295948_overlay.png](submission/screenshots/qa_B_295948_overlay.png)).
+>    - Mở teaching reference cho slice chính tại `data/_ref/B4-center.xml`, chạy công cụ so sánh trực quan [r1_craft/compare.md](submission/r1_craft/compare.md) và [r1_craft/compare.html](submission/r1_craft/compare.html).
+>
+> 4. **P4 · Chẩn đoán chuyên sâu, Phân tích chất lượng & Phân loại lỗi (Trọng tâm Vai C):**
+>    - **Đánh giá chất lượng cục bộ (`local-quality`):** Chạy phân tích so sánh với reference, tạo báo cáo [r3_diag/local_quality.md](submission/r3_diag/local_quality.md), `local_quality.json`, `conflicts.csv`, `confusion.csv`. F1 ban đầu đạt 0.771 (Precision: 0.815, Recall: 0.733).
+>    - **Phân tích mô hình YOLO26m (`model`):** Đối chiếu với mô hình nền tảng, bóc tách hiệu năng theo 3 vùng quang học (center, mid, edge) tại [r3_diag/model_compare.md](submission/r3_diag/model_compare.md), [r3_diag/model_compare.html](submission/r3_diag/model_compare.html) và bảng số liệu [r3_diag/zone_table.md](submission/r3_diag/zone_table.md). Phát hiện rõ hiện tượng model suy giảm recall mạnh ở vùng rìa méo (edge zone).
+>    - **Quét độ nhạy ngưỡng hình học (`iou-sweep`):** Quét 3 mốc IoU (0.3, 0.5, 0.7) ghi nhận tại [r3_diag/iou_sweep.md](submission/r3_diag/iou_sweep.md), chứng minh độ ổn định hình học của nhãn gán trước biến dạng mắt cá.
+>    - **Hệ thống phân loại lỗi (Error Taxonomy):** Lập thẻ chẩn đoán [10_error_card.md](submission/10_error_card.md) phân tích sâu nguyên nhân gốc rễ (Root Causes) theo 6 mã lỗi E0–E5. Phân loại toàn bộ 21 dòng `r3_diag` trong [findings.csv](submission/findings.csv) với đầy đủ why, severity (P0/P1/P2), owner, action.
+>
+> 5. **P5 · Nghiệm thu sửa nhãn (Rework Verification):**
+>    - Giám sát sửa nhãn, kiểm tra mã khóa mới [rework/lock2.txt](submission/rework/lock2.txt) (`9313-188F`) trên [rework/annotations-v2.xml](submission/rework/annotations-v2.xml).
+>    - Phân tích bảng delta định lượng [rework/delta.md](submission/rework/delta.md): Giảm 1 box Car dưới ngưỡng 40px (H=26.99px), chuẩn hóa 3 thuộc tính occluded=true, tăng F1 từ 0.771 lên 0.792.
+>
+> 6. **P6 · Quản trị kỹ thuật, Đề xuất quy tắc & Kế hoạch 4 Camera SVM (Governance & Planning):**
+>    - **Đề xuất quy tắc mới [20_guideline_patch.md](submission/20_guideline_patch.md):** Soạn thảo điều luật **R10: Quy chuẩn vùng chồng lấp (Seam Overlap) cho hệ thống SVM 360**, giải quyết bài toán vật thể bị cắt ngang bởi ranh giới ghép camera.
+>    - **Phiếu leo thang kỹ thuật [30_escalation_ticket.md](submission/30_escalation_ticket.md):** Lập hồ sơ escalation cho ca biên frame 295948 mép trái (x ≤ 145px) giáp ranh `lens_border` và `ego_body`.
+>    - **Nhật ký phân xử [40_decision_log.csv](submission/40_decision_log.csv):** Ra quyết định phân xử 4 ca bất đồng với căn cứ rõ ràng (loại box dưới ngưỡng R01, chuẩn hóa Bike R03, đồng bộ occluded R05, và escalate ca biên).
+>    - **Chiến lược Review [45_review_plan.md](submission/45_review_plan.md):** Thiết lập quy trình review 2 cấp cho 2 slice `B4-center` và `C0`.
+>    - **Kế hoạch lấy mẫu 200 frame [45_sampling_plan.csv](submission/45_sampling_plan.csv):** Phân bổ chính xác 200 frame cho 4 góc camera (front, rear, left, right) × 2 phân loại lát cắt (normal, hard) kèm rủi ro và lập luận chi tiết.
+>    - **Kế hoạch Gold Set [46_gold_set_plan.md](submission/46_gold_set_plan.md):** Xây dựng kế hoạch bảo dưỡng gold set, chu kỳ làm tươi và kịch bản test seam cho 4 camera fisheye quanh xe.
+>    - **Exit Ticket [50_exit_ticket.md](submission/50_exit_ticket.md):** Hoàn thành 3 câu phản hồi kỹ thuật đúc kết từ trải nghiệm thực tế.
+>    - **Nghiệm thu cổng kiểm tra:** Chạy `python3 lab11.py check` xác nhận đạt `✓ Hồ sơ hình thức đầy đủ`, exit code 0, sinh [submission/manifest.json](submission/manifest.json) với `failed_gates: []`.
+>
+> ---
+>
+> ### 👥 BẢNG LIÊN KẾT NHÓM & TRUY VẾT THÀNH VIÊN
+>
+> | Thành viên | MSSV | Vai trò | Slice | Bản nhãn đã khóa | Báo cáo QA Review | Rework & Delta | Exit Ticket | Repo cá nhân |
+> |---|---|---|---|---|---|---|---|---|
+> | **Đỗ Trung Kiên** *(Lead)* | 2A202602283 | Vai C (Lead & Diag) | `B4-center` | [C0 Lock](submission/p1_calib/lock.txt), [Craft Lock](submission/r1_craft/lock.txt) | [QA Review C0](submission/p1_calib/b_review_notes.md), [QA Intake](submission/r2_qa/qa_intake.md) | [Metric & Error Card](submission/10_error_card.md), [Rework v2](submission/rework/lock2.txt) | [50_exit_ticket.md](submission/50_exit_ticket.md) | [Repo Kiên](https://github.com/DTKien2005/K4-DAY11-Do-Trung-Kien-2A202602283-SVM360-Fisheye) |
+> | **Nguyễn Trí Tín** | 2A202602275 | Vai A (Annotator) | `B4-center` | [r1_craft Lock](submission/r1_craft/lock.txt) (`6997-BF13`) | [Self-QC 9 mục](submission/r1_craft/selfqc.md) | [Lock2](submission/rework/lock2.txt) (`9313-188F`), [delta.md](submission/rework/delta.md) | [Exit Ticket](submission/50_exit_ticket.md) | [Branch p0-parking-export](https://github.com/DTKien2005/K4-DAY11-Lab11/tree/p0-parking-export) |
+> | **Võ Trọng Nghĩa** | 2A202602072 | Vai B (QA Reviewer) | `B2-mid` | [Parking Lock](submission/parking/annotations.xml) | [qa_review.md](submission/r2_qa/qa_review.md), [qa_overlay.html](submission/r2_qa/qa_overlay.html) | [QA Overlay PNG](submission/screenshots/qa_B_295948_overlay.png) | [Exit Ticket](submission/50_exit_ticket.md) | [Branch nghia-qa-notes](https://github.com/DTKien2005/K4-DAY11-Lab11/tree/nghia-qa-notes) |
+>
+> Chi tiết phân công, vòng xoay QA và bằng chứng cam kết xem tại: **[TEAMMATES.md](TEAMMATES.md)**.
 
 
 ## Bạn sẽ làm gì và nộp gì?
