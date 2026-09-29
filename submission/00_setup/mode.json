@@ -10,10 +10,15 @@
     "tin": "B4-edge"
   },
   "self": "kien",
-  "slice": "B4-edge",
+  "slice": "B4-center",
   "degrade": [],
-  "current_slice": "C0",
+  "current_slice": "B4-center",
   "support_prefill": false,
   "support_slice": "",
-  "prefill_box_ids": []
+  "prefill_box_ids": [
+    "adasind_270517.jpg:1",
+    "adasind_270517.jpg:2",
+    "adasind_270517.jpg:3",
+    "adasind_270517.jpg:4"
+  ]
 }
