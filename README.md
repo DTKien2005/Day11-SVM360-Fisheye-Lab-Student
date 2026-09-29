@@ -1,6 +1,23 @@
 # Day 11 — SVM/360 Fisheye Lab
 
-**Bài chính Day 11 · 240 phút lab · mỗi học viên nộp một repo Public.** Bạn có thể trao đổi và đổi bản export để QA, nhưng tự gán nhãn, ghi quyết định và nộp bài của mình. Bắt đầu từ trang này; [GUIDE.md](GUIDE.md) là hướng dẫn thao tác CVAT chi tiết khi cần, còn [RUBRIC.md](RUBRIC.md) cho biết **100 điểm** được đọc từ bằng chứng nào.
+> ### 🏆 HỒ SƠ NỘP BÀI NHÓM (GROUP SUBMISSION)
+> - **Tên nhóm:** **SVM360-AI-Group**
+> - **Người đại diện nộp bài:** **Đỗ Trung Kiên** — MSSV: `2A202602283` (Vai C - Lead & Diagnostician)
+> - **Repo nhóm chính thức:** [https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student)
+> - **Kết quả Gate Check:** `✓ Hồ sơ hình thức đầy đủ` (0 failed gates trong [submission/manifest.json](submission/manifest.json)).
+>
+> | Thành viên | MSSV | Vai trò | Slice | Bản nhãn đã khóa | Báo cáo QA Review | Rework & Delta | Exit Ticket | Branch / Repo | Commit chốt |
+> |---|---|---|---|---|---|---|---|---|---|
+> | **Đỗ Trung Kiên** *(Lead)* | 2A202602283 | Vai C (Lead & Diag) | `B4-dense` | [C0 Lock](submission/p1_calib/lock.txt), [Craft Lock](submission/r1_craft/lock.txt) | [QA Review C0](submission/p1_calib/b_review_notes.md), [QA Intake](submission/r2_qa/qa_intake.md) | [Metric & Error Card](submission/10_error_card.md), [Rework v2](submission/rework/lock2.txt) | [50_exit_ticket.md](submission/50_exit_ticket.md) | [main](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student/tree/main) | HEAD (main) |
+> | **Nguyễn Trí Tín** | 2A202602275 | Vai A (Annotator) | `B4-center` | [r1_craft Lock](submission/r1_craft/lock.txt) (`6997-BF13`) | [Self-QC 9 mục](submission/r1_craft/selfqc.md) | [Lock2](submission/rework/lock2.txt) (`9313-188F`), [delta.md](submission/rework/delta.md) | [Exit Ticket](submission/50_exit_ticket.md) | [p0-parking-export](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student/tree/p0-parking-export) | [`ac57504`](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student/commit/ac57504969f37fe41f1f2500c2cb3f3007a0b171) |
+> | **Võ Trọng Nghĩa** | 2A202602072 | Vai B (QA Reviewer) | `B2-mid` | [Parking Lock](submission/parking/annotations.xml) | [qa_review.md](submission/r2_qa/qa_review.md), [qa_overlay.html](submission/r2_qa/qa_overlay.html) | [QA Overlay PNG](submission/screenshots/qa_B_295948_overlay.png) | [Exit Ticket](submission/50_exit_ticket.md) | [nghia-qa-notes](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student/tree/nghia-qa-notes) | [`0503c78`](https://github.com/DTKien2005/Day11-SVM360-Fisheye-Lab-Student/commit/0503c786afa0bd493ca25157b62b31382648a3af) |
+>
+> **Tóm tắt điều phối & Bàn giao nhóm:**
+> - **Phân công công việc:** Vai A (Tín) thực hiện P0 parking, P1 hiệu chuẩn C0, P2 gán nhãn slice B4-center và P5 rework v2. Vai B (Nghĩa) thực hiện P0/P1 review, P3 blind QA review độc lập và trích xuất bằng chứng ảnh overlay thật. Vai C (Kiên) điều phối dự án, benchmark P4 diagnostic (local quality, model YOLO compare, IoU sweep, taxonomy 10_error_card), P6 governance (patch R10, escalation ticket, review/sampling/gold plan, exit ticket) và chạy kiểm tra manifest tổng thể.
+> - **Giải quyết bất đồng & Thống nhất kỹ thuật:** Đã xử lý triệt để 4 ca bất đồng chính qua [40_decision_log.csv](submission/40_decision_log.csv), trong đó loại bỏ box Car H=26.99px dưới ngưỡng R01, đồng bộ nhãn `Bike` theo R03, và lập [30_escalation_ticket.md](submission/30_escalation_ticket.md) cho ca biên mép khó tại frame 295948.
+> - **Kế hoạch mở rộng:** Thống nhất bảng phân bổ 200 frame cho 4 camera fisheye tại [45_sampling_plan.csv](submission/45_sampling_plan.csv) và tiêu chí gold set đa camera tại [46_gold_set_plan.md](submission/46_gold_set_plan.md).
+> - **Hồ sơ chi tiết & cam kết đóng góp:** Xem chi tiết tại **[TEAMMATES.md](TEAMMATES.md)**.
+
 
 ## Bạn sẽ làm gì và nộp gì?
 
